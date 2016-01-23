@@ -1,0 +1,28 @@
+sudo: required
+dist: trusty
+cache: apt
+language: cpp
+addons:
+  apt:
+    packages:
+    - lazarus
+matrix:
+  include:
+  - os: osx
+    env: PLATFORM=osx
+  - os: linux
+    env: PLATFORM=linux
+install: "./.travis/install.sh"
+script: "./.travis/script.sh"
+after_script: "./.travis/after_script.sh"
+deploy:
+  provider: releases
+  api_key:
+    secure: nwyk7u7fArM/xWoYN6PejkQgEcqc1uIjGqbSlqRK8fPNM1099/iRaM3S470wGYhZga2VTXW26JzMwBWyPN/TIHHfSbNVbt77kWEvTJeK8X5Yofng1k1xhrzLZNM0Du2Ni63qYY2w/Pfg4yVz2XoJCWb1zgqHwBxnStUw8O+bou/M+RKoQaP61a71MQtiXypcEdQ6NPq2nItgptpJMJh3K8SUaA9wsCyflgT1REWcFKL+YLSVAR0SYVlaeRI7D+fOnlsRgbu3wAN4C3QtHFB26LtOH1rRmJLfVV7o9+VV9nKQXRZLRKGYDGrYua+9ev4IcEsipsBP4JEjXxZAqw0225z+H8khm6GwjPYlRmxLgQDtWbdoDu2+fFYPlI8gJzfQ+hz2ZCrWjPy2nAV1VYKiUfFChkPHLu3ooX76X1lEjqled2OiXyMdkRL6JrIzWcjRv+c7MHJlxIUeF0m7PIIFe6f1/6o8tBFMZZdAMY5ELa3sjDzMY9osn3fx43ZIiZ14NyItwNmMFbmURLPioLlQ47lo0v1tR1l/JFKV+eUXA9xrDEpSXio45Ldi2LE9QUAKwvLy+AXK9KrpMxdVk88dbm2R6sADDegOgGFPnw2IlgMbFPzDZI8FWVHue2mKSYhh2fNDl7H62zKuVk2pleHcKic/b8LUUaNarWTH3Jd3lPo=
+  file_glob: true
+  file: PropBasic-*.tgz
+  skip_cleanup: true
+  on:
+    repo: parallaxinc/PropBASIC
+    tags: true
+    all_branches: true
