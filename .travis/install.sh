@@ -5,9 +5,11 @@ git submodule update --init --recursive
 
 case "$PLATFORM" in
 "osx")
-    brew cask install lazarus
+    brew install lazarus
     ;;
 "linux")
+    sudo apt-get update
+    sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install lazarus
     ;;
 *)
     echo "Invalid PLATFORM"
