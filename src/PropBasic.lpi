@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <Flags>
+        <MainUnitHasUsesSectionForAllUnits Value="False"/>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+      </Flags>
+      <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
+      <Title Value="PropBasic"/>
+      <UseAppBundle Value="False"/>
+      <ResourceType Value="res"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <CommandLineParams Value="&quot;e:\propbasic\test.pbas&quot; /p /e"/>
+      </local>
+    </RunParams>
+    <Units Count="26">
+      <Unit0>
+        <Filename Value="PropBasic.lpr"/>
+        <IsPartOfProject Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="DEVICES.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="DEVICES"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="GLOBAL.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GLOBAL"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="_BRANCH.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Branch"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="_FOR.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_For"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="_HIGH.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_High"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="_IF.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_If"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="_DO.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Do"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="_INC.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Inc"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="_LET.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Let"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="_LOOKUP.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Lookup"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="_PAUSE.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_PAUSE"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="_PULSE.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Pulse"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="_I2C.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_I2C"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="_ONEWIRE.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_OneWire"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="_RANDOM.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Random"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="_RCTIME.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_RCTime"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="_READ.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Read"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="_SERIAL.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_SERIAL"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="_SHIFT.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Shift"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="_VAR.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_VAR"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="_INPUT.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Input"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="_MISC.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_MISC"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="_PROP.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_PROP"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="_TASK.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_task"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="_DEBUG.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Debug"/>
+      </Unit25>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <SyntaxMode Value="Delphi"/>
+      </SyntaxOptions>
+    </Parsing>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <MsgFileName Value=""/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

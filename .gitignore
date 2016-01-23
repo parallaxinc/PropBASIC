@@ -1,0 +1,8 @@
+*.o
+*.ppu
+*.err
+*.spin
+*.compiled
+PropBasic
+
+*.swp

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="30">
+      <Unit0>
+        <Filename Value="PropBasic.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="57" Y="1"/>
+        <UsageCount Value="53"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="DEVICES.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="DEVICES"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="53"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="GLOBAL.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GLOBAL"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="69" Y="1940"/>
+        <UsageCount Value="53"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="_BRANCH.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Branch"/>
+        <UsageCount Value="53"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="_FOR.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_For"/>
+        <UsageCount Value="53"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="_HIGH.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_High"/>
+        <UsageCount Value="53"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="_IF.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_If"/>
+        <UsageCount Value="53"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="_DO.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Do"/>
+        <UsageCount Value="53"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="_INC.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Inc"/>
+        <UsageCount Value="53"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="_LET.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Let"/>
+        <UsageCount Value="53"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="_LOOKUP.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Lookup"/>
+        <UsageCount Value="53"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="_PAUSE.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_PAUSE"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="14"/>
+        <CursorPos X="34" Y="57"/>
+        <UsageCount Value="53"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="_PULSE.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Pulse"/>
+        <UsageCount Value="53"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="_I2C.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_I2C"/>
+        <UsageCount Value="53"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="_ONEWIRE.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_OneWire"/>
+        <UsageCount Value="53"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="_RANDOM.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Random"/>
+        <UsageCount Value="53"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="_RCTIME.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_RCTime"/>
+        <UsageCount Value="53"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="_READ.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Read"/>
+        <UsageCount Value="53"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="_SERIAL.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_SERIAL"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="402"/>
+        <CursorPos X="1" Y="408"/>
+        <UsageCount Value="53"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="_SHIFT.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Shift"/>
+        <UsageCount Value="53"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="_VAR.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_VAR"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="470"/>
+        <CursorPos X="67" Y="495"/>
+        <UsageCount Value="53"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="_INPUT.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Input"/>
+        <UsageCount Value="53"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="_MISC.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_MISC"/>
+        <UsageCount Value="53"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="_PROP.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_PROP"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="280"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="53"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="_TASK.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_task"/>
+        <UsageCount Value="53"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="_DEBUG.PAS"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="_Debug"/>
+        <UsageCount Value="53"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="_LETLONG.PAS"/>
+        <UnitName Value="_LETLONG"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="965"/>
+        <CursorPos X="7" Y="990"/>
+        <UsageCount Value="23"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="test.pbas"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="6" Y="17"/>
+        <UsageCount Value="24"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="test.spin"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="94"/>
+        <CursorPos X="63" Y="131"/>
+        <UsageCount Value="23"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="_LETSTR.PAS"/>
+        <UnitName Value="_LetStr"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="106"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit29>
+    </Units>
+    <General>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <JumpHistory Count="2" HistoryIndex="1">
+      <Position1>
+        <Filename Value="PropBasic.lpr"/>
+        <Caret Line="535" Column="40" TopLine="519"/>
+      </Position1>
+      <Position2>
+        <Filename Value="PropBasic.lpr"/>
+        <Caret Line="308" Column="20" TopLine="298"/>
+      </Position2>
+    </JumpHistory>
+  </ProjectSession>
+  <EditorMacros Count="0"/>
+</CONFIG>
