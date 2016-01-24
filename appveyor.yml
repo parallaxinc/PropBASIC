@@ -4,12 +4,16 @@ configuration: Release
 
 install:
 - git submodule update --init --recursive
-- set PATH=%PATH%;"C:\FPC\3.0.0\bin\i386-win32"
+- choco install -y 7zip
 - set PATH=%PATH%;"C:\Program Files\7-Zip"
+- $url = "http://lamestation.net/downloads/appveyor/FPC.zip"
+- $output = "C:\\FPC.zip"
+- Invoke-WebRequest -Uri $url -OutFile $output
+- 7z x $output
+- set PATH=%PATH%;"C:\FPC\3.0.0\bin\i386-win32"
 - if defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION=%APPVEYOR_REPO_TAG_NAME%
 - if not defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION="0.0.0"
 - set BUILD_DIR="propbasic-%BUILD_VERSION%-win32.zip"
-- choco install -y 7zip
 
 build_script:
 - cd src/
