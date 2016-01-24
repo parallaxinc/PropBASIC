@@ -20,7 +20,7 @@ build_script:
 - mkdir %BUILD_DIR%
 - cp src\propbasic %BUILD_DIR%
 - cp doc\PropBASIC.pdf %BUILD_DIR%
-- 7z a %BUILD_DIR%.zip %BUILD_DIR%
+- 7z a %BUILD_DIR% %BUILD_DIR%
 
 artifacts:
   - path: propbasic-*.zip
