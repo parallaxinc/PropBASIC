@@ -5,11 +5,11 @@ git submodule update --init --recursive
 
 case "$PLATFORM" in
 "osx")
-    brew install lazarus
+    brew install fpc
     ;;
 "linux")
     sudo apt-get update
-    sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install lazarus
+    sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install fpc
     ;;
 *)
     echo "Invalid PLATFORM"

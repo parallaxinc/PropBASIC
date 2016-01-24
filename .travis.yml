@@ -5,7 +5,7 @@ language: cpp
 addons:
   apt:
     packages:
-    - lazarus
+    - fpc
 matrix:
   include:
   - os: osx

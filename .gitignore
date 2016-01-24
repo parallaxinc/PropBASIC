@@ -3,6 +3,11 @@
 *.err
 *.spin
 *.compiled
+
+propbasic
 PropBasic
+propbasic-*/
+propbasic-*.tgz
+propbasic-*.zip
 
 *.swp
