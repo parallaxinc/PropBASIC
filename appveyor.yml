@@ -6,10 +6,8 @@ install:
 - git submodule update --init --recursive
 - choco install -y 7zip
 - set PATH=%PATH%;"C:\Program Files\7-Zip"
-- $url = "http://lamestation.net/downloads/appveyor/FPC.zip"
-- $output = "C:\\FPC.zip"
-- Invoke-WebRequest -Uri $url -OutFile $output
-- 7z x $output
+- curl -o "C:\FPC.zip""http://lamestation.net/downloads/appveyor/FPC.zip"
+- 7z x "C:\FPC.zip"
 - set PATH=%PATH%;"C:\FPC\3.0.0\bin\i386-win32"
 - if defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION=%APPVEYOR_REPO_TAG_NAME%
 - if not defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION="0.0.0"
