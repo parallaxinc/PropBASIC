@@ -18,8 +18,8 @@ build_script:
 - fpc -Twin32 -opropbasic PropBasic.lpr
 - cd ..
 - mkdir %BUILD_DIR%
-- cp src\propbasic %BUILD_DIR%
-- cp doc\\* %BUILD_DIR%
+- cp "src\propbasic" %BUILD_DIR%
+- cp "doc\*" %BUILD_DIR%
 - 7z a %BUILD_DIR%.zip %BUILD_DIR%
 
 artifacts:
