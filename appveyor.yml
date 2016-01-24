@@ -7,12 +7,7 @@ install:
 - choco install -y 7zip
 - set PATH=%PATH%;"C:\Program Files\7-Zip"
 - curl -o "C:\FPC.zip" "http://lamestation.net/downloads/appveyor/FPC.zip"
-- 7z x "C:\FPC.zip"
-- ls C:\
-- ls C:\FPC
-- ls C:\FPC\3.0.0
-- ls C:\FPC\3.0.0\bin
-- ls C:\FPC\3.0.0\bin\i386-win32
+- 7z x "C:\FPC.zip" -o"C:\"
 - set PATH=%PATH%;"C:\FPC\3.0.0\bin\i386-win32"
 - if defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION=%APPVEYOR_REPO_TAG_NAME%
 - if not defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION="0.0.0"
