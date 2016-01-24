@@ -1,0 +1,34 @@
+clone_depth: 200
+
+configuration: Release
+
+install:
+- git submodule update --init --recursive
+- set PATH=%PATH%;"C:\FPC\3.0.0\bin\i386-win32"
+- set PATH=%PATH%;"C:\Program Files\7-Zip"
+- if defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION=%APPVEYOR_REPO_TAG_NAME%
+- if not defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION="0.0.0"
+- set BUILD_DIR="propbasic-%BUILD_VERSION%-win32.zip"
+- choco install -y 7zip
+
+build_script:
+- cd src/
+- fpc -Twin32 -opropbasic PropBasic.lpr
+- cd ..
+- mkdir %BUILD_DIR%
+- cp src\propbasic %BUILD_DIR%
+- cp doc\* %BUILD_DIR%
+- 7z a %BUILD_DIR%.zip %BUILD_DIR%
+
+artifacts:
+  - path: propbasic-*.zip
+    name: propbasic
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: agKPOOVVpPx6LVzUWLOuktBrZ7NKeUbyvqwNHjw2FsrAyCbgiq/Ha+CmkoZdCVJF
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true
