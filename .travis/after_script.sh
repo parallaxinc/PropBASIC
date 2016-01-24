@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ls src/PropBasic
+ls bin/*
 
 case "$PLATFORM" in
 "osx")
