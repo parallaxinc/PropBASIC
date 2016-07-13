@@ -2,6 +2,7 @@
 *.ppu
 *.err
 *.spin
+*.binary
 *.compiled
 
 propbasic
