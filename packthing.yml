@@ -1,0 +1,24 @@
+name: PropBASIC
+package: propbasic
+org: Parallax Inc.
+url: http://developer.parallax.com/propbasic/
+maintainer: LameStation
+email: contact@lamestation.com
+copyright: 2009-2016
+license: MIT
+tagline: A Propeller BASIC compiler.
+description: PropBasic is a BASIC compiler for the Parallax(c) Propeller microcontroller.
+master: propbasic
+
+target:
+    deb:
+        depends:
+        section:
+        categories:
+
+repos: 
+    propbasic:
+        url: https://github.com/parallaxinc/PropBasic.git
+        branch: master
+        builder: fpc
+        root: src

@@ -14,8 +14,6 @@ value     VAR LONG
 Message  DATA "Distance is "
 valueStr DATA "1234.5 inches.", 13, 0
 
-load "Lib.pbas"
-
 PROGRAM Start
 
 Start:

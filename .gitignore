@@ -15,3 +15,4 @@ propbasic-*.zip
 
 *.swp
 *~
+build/
