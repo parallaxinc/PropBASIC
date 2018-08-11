@@ -291,11 +291,13 @@ Var
   g_sOutputDir: String;
   g_sInputDir: String;
   g_eOutput: (Full, Brief, Quiet);
+  g_bFBErrorFormat: Boolean;
   g_bPause: Boolean;
   g_bPauseExit: Boolean;
   g_bNoSource: Boolean;
   g_bInAsm: Boolean;
   g_bCompile: Boolean;
+  g_bDisableWarnings: Boolean;
   g_tfSrc: Text;
   g_tfErr: Text;
   g_iLastErrorLine: Integer;
@@ -531,7 +533,10 @@ Begin
   End;
   If bWriteError Then
   Begin
-    Write(g_tfErr, 'ERROR,', g_sCurrentFile, ',', g_iInLineCnt, ',', pv_iError, ',', c_asErrorText[pv_iError]);
+    If g_bFBErrorFormat Then
+      Write(g_tfErr, g_sCurrentFile, '(', g_iInLineCnt, ') error ', pv_iError, ': ', c_asErrorText[pv_iError]) // "Free BASIC" error report
+    Else
+      Write(g_tfErr, 'ERROR,', g_sCurrentFile, ',', g_iInLineCnt, ',', pv_iError, ',', c_asErrorText[pv_iError]);
     If pv_iParam <> 0 Then WriteLn(g_tfErr, ' "', g_asCmdLine[pv_iParam], '"') Else WriteLn(g_tfErr);
     Close(g_tfErr);
   End;
@@ -549,38 +554,41 @@ Procedure Warning(pv_iWarning, pv_iParam: Integer);
 Var
   bWriteError: Boolean;
 Begin
-  g_iLastErrorLine:=g_iInLineCnt;
-  Inc(g_iWarningCnt);
-  Write(g_tfSrc, ''' WARNING ', pv_iWarning:2, '  ', c_asWarningText[pv_iWarning]);
-  If pv_iParam <> 0 Then Write(g_tfSrc, ' "', g_asCmdLine[pv_iParam], '" ');
-  WriteLn(g_tfSrc, ' ; ', g_sOrigLine);
-
-  // Create error file if it doesn't exist
-  bWriteError:=True;
-  {$I-}
-  Append(g_tfErr);
-  {$I+}
-  If IOResult <> 0 Then
+  If g_bDisableWarnings = False Then
   Begin
+    g_iLastErrorLine:=g_iInLineCnt;
+    Inc(g_iWarningCnt);
+    Write(g_tfSrc, ''' WARNING ', pv_iWarning:2, '  ', c_asWarningText[pv_iWarning]);
+    If pv_iParam <> 0 Then Write(g_tfSrc, ' "', g_asCmdLine[pv_iParam], '" ');
+    WriteLn(g_tfSrc, ' ; ', g_sOrigLine);
+
+    // Create error file if it doesn't exist
+    bWriteError:=True;
     {$I-}
-    ReWrite(g_tfErr);
+    Append(g_tfErr);
     {$I+}
-    If IOResult <> 0 Then bWriteError:=False;
-  End;
-  If bWriteError Then
-  Begin
-    Write(g_tfErr, 'WARNING,', g_sCurrentFile, ',', g_iInLineCnt, ',', pv_iWarning, ',', c_asWarningText[pv_iWarning]);
-    If pv_iParam <> 0 Then WriteLn(g_tfErr, ' "', g_asCmdLine[pv_iParam], '"') Else WriteLn(g_tfErr);
-    Close(g_tfErr);
-  End;
+    If IOResult <> 0 Then
+    Begin
+      {$I-}
+      ReWrite(g_tfErr);
+      {$I+}
+      If IOResult <> 0 Then bWriteError:=False;
+    End;
+    If bWriteError Then
+    Begin
+      Write(g_tfErr, 'WARNING,', g_sCurrentFile, ',', g_iInLineCnt, ',', pv_iWarning, ',', c_asWarningText[pv_iWarning]);
+      If pv_iParam <> 0 Then WriteLn(g_tfErr, ' "', g_asCmdLine[pv_iParam], '"') Else WriteLn(g_tfErr);
+      Close(g_tfErr);
+    End;
 
-  If g_eOutput = Full Then
-  Begin
-    Write(' WARNING ', pv_iWarning:2, '  ', c_asWarningText[pv_iWarning]);
-    If pv_iParam <> 0 Then Write(' "', g_asCmdLine[pv_iParam], '" ');
-    WriteLn(' ; ', g_sOrigLine);
-    If g_bPause Then ReadLn;
-  End;
+    If g_eOutput = Full Then
+    Begin
+      Write(' WARNING ', pv_iWarning:2, '  ', c_asWarningText[pv_iWarning]);
+      If pv_iParam <> 0 Then Write(' "', g_asCmdLine[pv_iParam], '" ');
+      WriteLn(' ; ', g_sOrigLine);
+      If g_bPause Then ReadLn;
+    End;
+  End; { If g_bDisableWarnings = false }
 End;
 
 Procedure ErrorStr(pv_iError: Integer; pv_sParam: String);
@@ -606,7 +614,10 @@ Begin
   End;
   If bWriteError Then
   Begin
-    WriteLn(g_tfErr, 'ERROR,', g_sCurrentFile, ',', g_iInLineCnt, ',', pv_iError, ',', c_asErrorText[pv_iError], ' "', pv_sParam, '"');
+    If g_bFBErrorFormat Then
+      WriteLn(g_tfErr, g_sCurrentFile, '(', g_iInLineCnt, ') error ', pv_iError, ': ', c_asErrorText[pv_iError])
+    Else
+      WriteLn(g_tfErr, 'ERROR,', g_sCurrentFile, ',', g_iInLineCnt, ',', pv_iError, ',', c_asErrorText[pv_iError], ' "', pv_sParam, '"');
     Close(g_tfErr);
   End;
 
@@ -1299,8 +1310,9 @@ Begin
       If pv_sData[I] = '"' Then bInQuotes:=True;
     End;
     Inc(I);
-  End;
-  If pv_sData[I] <> '"' Then Inc(iDataSize);
+  End; //   While I < Length(pv_sData) Do
+  // Feb 13,2016 If pv_sData[I] <> '"' Then Inc(iDataSize);
+  If (I <= Length(pv_sData)) and (pv_sData[I] <> '"') Then Inc(iDataSize);
   New(poByteData, Init(pv_sData, g_lHubOffset));
   Inc(m_oVars.m_iVarCnt);
   m_oVars.m_apoVars[m_oVars.m_iVarCnt]:=poByteData;

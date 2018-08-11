@@ -1,4 +1,11 @@
-Program PropBasic; // Compile with Lazarus (Free Pascal)
+// task_COG_adr should not be outputted
+// Need fixup code in TASKS
+//
+// Make subroutine for MULT, DIV, SEROUT, SERIN, etc
+//
+// I2CSTART locks up if no pull-ups
+//
+Program PropBasic;
 
 {$MODE Delphi}
 
@@ -9,7 +16,8 @@ Program PropBasic; // Compile with Lazarus (Free Pascal)
 
    File...... PropBasic
    Purpose... BASIC to Propeller Assembly Compiler
-   Author.... Terry Hitt (Esterline Research & Design)
+   Author.... Terry Hitt
+   E-mail.... bean@pa.net
    Started... Aug 27, 2009
    Updated... Daily
 
@@ -26,8 +34,12 @@ Switches:
   /V = Returns Version number as exit code (exit immediately)
   /NS = No Code (Does NOT include the BASIC code in the output file)
   /VP = Compiling for ViewPort
+  /D  = Disable Warnings (July 16, 2018)
 
 ----------------------------------------------------------------------------
+NOTES FOR VERSIONS PRIOR TO 00.01.00 ARE AT THE END OF THIS FILE
+----------------------------------------------------------------------------
+
 Version 00.01.00
   Fixed: Compiler crash on COGSTART if task name has not been defined
   Fixed: Calculated constant using a long constant
@@ -107,6 +119,7 @@ Version 00.01.12
   Changed: Create a return stack for LMM
              this will save 1 instruction for every subroutine call
              and 1 long from every subroutine
+
   Optimized: SERIN use "waitpne" and "waitpeq" to wait for state  (saves 2)
                    use "muxz" or "muxnz" to set/clear data bits   (saves 1)
                    use data variable to do bit count (1 shifts out) (saves 1)
@@ -145,68 +158,117 @@ Version 00.01.20
 ----------------------------------------------------------------------------
 Version 00.01.26
   FIXED: WDATA and LDATA (no data generated)
-----------------------------------------------------------------------------
+
 Version 00.01.27
   ADDED: __txtermAdr to support viewport terminal
-----------------------------------------------------------------------------
+
 Version 00.01.28
   Added: Support floating point values with # prefix
   Fixed: FREQ command caused abort if DEVICE is misspelled
   Fixed: Allow constant with COGSTOP (was NOT fixed in 1.11)
   Fixed: tempStr = STR temp (needs ",len" but causes abort) [Oct 10,2012]
-  ----------------------------------------------------------------------------
+
 Version 00.01.29
   Fixed: PAUSE XXXX does not cause an error
-----------------------------------------------------------------------------
+  
 Version 00.01.30
   Added: Directive VIEWPORT defined if using viewport
-----------------------------------------------------------------------------
+
 Version 00.01.31
   FIXED: DO...LOOP x => y ' should be >= but no error
-----------------------------------------------------------------------------
+
 Version 00.01.40
   Changed from Delphi to Lazarus
-----------------------------------------------------------------------------
+
 Version 00.01.41
   Changed path character "\" to "/" for compatiblity with Mac and Linux
   Fixed PulsOut that hangs at lower clock speeds Aug 19, 2013
-----------------------------------------------------------------------------
+
 Version 00.01.42
   Changed to add "/" to end of g_sInputDir because Mac version seems to be lacking it
   Added code to avoid Lazarus warnings
-----------------------------------------------------------------------------
+
 Version 00.01.43
   Changed SERIN so it doesn't wait for stop bit
   Optimize Divide and remainder operation [June 27,2014]
-----------------------------------------------------------------------------
+
 Version 00.01.44
   Made PAUSE a subroutine
   Made *, */, **, /, and // operator subroutine
+  Allow FREQ with RCSLOW or RCFAST "ProcessFreq" Feb 3, 2016
 
-****************************************************************************
-TODO:
-  COUNTERA allow 2nd pin to be omitted saving an instruction
-  task_COG_adr should not be outputted
-  Need fixup code in TASKS
-  #PinName doesn't error if PinName doesn't exist
-  Add WZ,WC to ADD and SUB instructions and allows IF C THEN etc.
-  Make subroutine for STR, SEROUT, SERIN
-  A TASK cannot start another TASK
+Version 00.01.45
+  Changed A = x - A to generate
+    neg A,A
+    adds A,x
+  Fixed two range errors
+  Fixed __remainder was __temp1, but should be __temp4 now Mar 7, 2016
+  Fixed: I2C commands in LMM mode require minimum of 150 WAITCNT  Jun 28,2017
+  Fixed: I2CSTART locks up if no pull-ups (should only try 10 times) Jun 29,2017
+  Fixed: PAUSE, Mult, and Div subroutines were added to TASKs when not used. Jul 18,2017
+  Fixed: Bug in >> and << when using var = x >> var caused by A = x - A optimization Jul 28, 2017
+  Fixed: Optimize X=X*0 X=X*1, X=X*3, X=Y*0, X=Y*1  REMOVE "shl x,#0" instructions Jul 29,2017
+  Fixed: Optimize X=Y*3 "MOV,ADD,ADD" Jul 30,2017
 
-----------------------------------------------------
-FUTURE:
-  PRINT "Value=";value:digits:mode
-  PRINTTO subroutineName
-  USES "TV_LIB.pbas" as TV
+Version 00.01.46
+  Fixed 12-23-2017: Fix WRLONG hubVar(undefined) does not error
+  Fixed 12-29-2017: __RAM() does not work in TASKs
+
+Version 00.01.47 July 17, 2018
+  Fixed: 4-1-2018: Firmware CON 0000_000C causes abort (no $ prefix)
+  Fixed: 7-16-2018 I2C Write needs 9th bit to be a 1 so slave can assert ACK
+  Added: 7-16-2018 Ability to disable warnings (Simple IDE will not download if a warning occurs)
+           Use /D on command line or NOWARNINGS directive
+
+Version 00.01.48 August 8, 2018
+   Fixed: 00.01.47 was posted as 64-app, now is 32-bit app
+   Need to fix: var = #pin_name doesn't like underscores in pin name
+   Added: Support for FreeBASIC IDE with /FB switch
+
+Version 00.01.49
+   Need to fix: Cannot use pin 31 in a range  PIN 31..30 or PIN 30..31
+   Add: Ability to specify a NCO frequency
+          SETFREQA freq
+
+  --------------------------------------------------------------------------
+
+
+  TODO: Uses DIV etc. Need to be per TASK
+
+  TODO: value = -1 should generate NEG value,#1
+
+  TODO: DIVIDE LMM replace
+    IF_Z          jmp           #_LMM_JUMP
+                  long          @@@_DIV_ZERO
+    With
+      IF_Z          add __PC,#(('+LabelStr+'-$)*4)-4');
+
+  --------------------------------------------------------------------------
+  TODO: Make subroutine for STR, SEROUT, SERIN
+  TODO: PRINT "Value=";value:digits:mode
+  TODO: PRINTTO subroutineName
+  TODO: USES "TV_LIB.pbas" as TV
     TV.Plot x,y
-  A way to SEROUT several things
-    SEROUT "Value=", value
 
-  Allow input/output character streams:
-    PRINT SendChar, "Value="; value
-    PRINT SendChar, "Line 1", "Line 2" ' Comma starts new line
-    PRINT SendChar, "Enter a value:";
-    INPUT GetChar, value
+
+
+----------------------------------------------------------------------------
+  TODO:
+    A way to SEROUT several things
+      SEROUT "Value=", value
+
+    A TASK cannot start another TASK
+
+    USES "TV.PBAS" as TV
+      TV.Plot x,y
+
+----------------------------------------------------------------------------
+  Need to add:
+    Allow input/output character streams:
+      PRINT SendChar, "Value="; value
+      PRINT SendChar, "Line 1", "Line 2" ' Comma starts new line
+      PRINT SendChar, "Enter a value:";
+      INPUT GetChar, value
 
   Need to change:
     Allow LMM subroutines to be used by multiple tasks. Return address kept by cog.
@@ -302,9 +364,9 @@ uses
   _DEBUG in '_DEBUG.PAS';
 
 Const
-  c_sVersion = '00.01.44';
-  c_iExitCodeVersion = 000144;
-  c_sVerDate = 'Jul 13, 2014';
+  c_sVersion = '00.01.48';
+  c_iExitCodeVersion = 000148;
+  c_sVerDate = 'Aug 9, 2018';
 
 Var
   sLine: String;
@@ -778,13 +840,14 @@ Var
 Begin
   If g_iCmdCnt = 2 Then
   Begin
-    If g_bInternalClock Then Warning(c_iWarningInternalClock,  1);
+    // 2-3-16 If g_bInternalClock Then Warning(c_iWarningInternalClock,  1);
     If g_apoCmdVars[2]^.eGetType = e_LongConst Then
     Begin
       g_lFreq:=g_apoCmdVars[2]^.lGetValue;
       lTemp:=Trunc(g_lFreq / g_iPLL);
       Str(lTemp:9, sTemp);
-      If Not g_bInternalClock Then OutSpin('  _XInFreq = '+ sTemp);
+      // 2-3-16 If Not g_bInternalClock Then OutSpin('  _XInFreq = '+ sTemp);
+      OutSpin('  _XInFreq = '+ sTemp);
       g_bFreqSpecified:=True;
       Dispose(g_oDevice.m_oVars.m_apoVars[g_oDevice.m_oVars.m_iVarCnt], Done);
       Dec(g_oDevice.m_oVars.m_iVarCnt);
@@ -918,12 +981,13 @@ Var
   iHubBytes: Integer;
 Begin
   iHubBytes:=0; // avoid lazarus warning
+  lTemp:=0; // avoid lazarus warning
   g_bInAsm:=False;
   New(poNoVar, Init('TEMP', 0));
   If ExtractFilePath(pv_sGiven) = '' Then
   Begin
     GetDir(0, g_sCurrentFile);
-    pv_sGiven:=g_sCurrentFile+''+pv_sGiven;
+    pv_sGiven:=g_sCurrentFile+'\'+pv_sGiven;
   End;
   g_sCurrentFile:=pv_sGiven;
   Assign(tfIn, pv_sGiven);
@@ -963,6 +1027,11 @@ Begin
           If Upper(Copy(sLine, I, 11)) = '''{$WARNING ' Then
           Begin
             If g_bCompile Then ProcessWarningDirective(Copy(sLine, I+11, Length(sLine) - (I+11))) Else g_bHandled:=True;
+          End;
+          If Upper(Copy(sLine, I, 14)) = '''{$NOWARNINGS}' Then
+          Begin
+            If g_bCompile Then g_bDisableWarnings:=True;
+            g_bHandled:=True;
           End;
           If Upper(Copy(sLine, I, 9)) = '''{$ERROR ' Then
           Begin
@@ -1192,7 +1261,7 @@ Begin
           If g_asCmdLine[I,1] In ['0'..'9', '$', '%', '"', '#'] Then
           Begin // Literal
             sConst:=g_asCmdLine[I];
-            If g_asCmdLine[I,1] <> '"' Then While Pos('_', sConst) > 0 Do Delete(sConst, Pos('_', sConst), 1);
+            If ((g_asCmdLine[I,1] <> '"') and (g_asCmdLine[I,1] <> '#')) Then While Pos('_', sConst) > 0 Do Delete(sConst, Pos('_', sConst), 1);
             Case sConst[1] of
               '$','0'..'9':
                  Begin
@@ -1202,6 +1271,7 @@ Begin
                      dTemp:=lTemp;
                    End
                    Else Val(sConst, dTemp, iTemp);
+                   If iTemp <> 0 then Error(c_iErrorInvalidParameter, I); // Apr 1,2018
                    If (dTemp > 2147483647.0) and (g_asCmdLine[I-1] <> '-')Then
                    Begin
                      dTemp:= dTemp - 4294967296.0;
@@ -1845,6 +1915,7 @@ Begin
     g_iDoAccum:=0;
     g_bUsedProgram:=False;
     g_eOutput:=Full;
+    g_bFBErrorFormat:=False;
     g_sOutputDir:='';
     g_bPause:=False;
     g_bPauseExit:=False;
@@ -1853,6 +1924,7 @@ Begin
     g_iDefinesCnt:=0;
     g_bCompile:=True;
     g_iCondCnt:=0;
+    g_bDisableWarnings:=False;
 
     If (ParamStr(1) = '/v') or (ParamStr(1) = '/V') Then Halt(c_iExitCodeVersion);
     If ParamCount > 1 Then
@@ -1865,11 +1937,13 @@ Begin
         If Uppercase(ParamStr(I)) = '/E' Then g_bPauseExit:=True;
         If Uppercase(ParamStr(I)) = '/O' Then g_sOutputDir:=ParamStr(I+1);
         If Uppercase(ParamStr(I)) = '/NS' Then g_bNoSource:=True;
+        If UpperCase(ParamStr(I)) = '/FB' Then g_bFBErrorFormat:=True; // "Free BASIC" error format
         If Uppercase(ParamStr(I)) = '/VP' Then
         Begin
           g_eDebugger:=e_ViewPort;
           AddDirective('VIEWPORT');
         End;
+        If Uppercase(ParamStr(I)) = '/D' Then g_bDisableWarnings:=True;
       End;
     End;
     If g_eOutput <> Quiet Then WriteLn;
@@ -2097,7 +2171,9 @@ Begin
     WriteLn('  /O = "Output_Directory" Specifies a diffrent directory for output files');
     WriteLn('  /V = Returns Version number as exit code (exit immediately)');
     WriteLn('  /NS = No Code (Does NOT include the BASIC code in the output file)');
+    WriteLn('  /FB = FreeBASIC error reporting format, for FreeBASIC IDEs ( PoseidonFB IDE etc)');
     WriteLn('  /VP = Compiling for ViewPort');
+    WriteLn('  /D  = Disable Warning');
     WriteLn;
     WriteLn('Example:');
     WriteLn('PropBasic "c:/myfiles/myprog.pbas" /p');
@@ -2153,6 +2229,51 @@ Version 00.00.14
   Added: I2C commands
   Added: ShiftIn, ShiftOut
   Added: COUNTERA, COUNTERB commands. COUNTERA mode [, apin [, bpin [, frqx [,phsx]]]]
+
+  COUNTERA mode[, apin [, bpin[, frqx[, phsx]]]]
+    mode:
+      0  = Counter Disabled
+      8  = PLL Internal (Video) *
+      16 = PLL Single-Ended *
+      24 = PLL Differential *
+      32 = NCO/PWM Single Ended
+      40 = NCO/PWM Differential
+      48 = DUTY Single-Ended
+      56 = DUTY Differential
+      64 = POS detector
+      72 = POS detector with feedback
+      80 = POSEDGE detector
+      88 = POSEDGE detector with feedback
+      96 = NEG detector
+     104 = NEG detector with feedback
+     112 = NEGEDGE detector
+     120 = NEGEDGE detector with feedback
+     128 = LOGIC never
+     136 = LOGIC !A & !B
+     144 = LOGIC A & !B
+     152 = LOGIC !B
+     160 = LOGIC !A & B
+     168 = LOGIC !A
+     176 = LOGIC A <> B
+     184 = LOGIC !A | !B
+     192 = LOGIC A & B
+     200 = LOGIC A = B
+     208 = LOGIC A
+     216 = LOGIC A | !B
+     224 = LOGIC B
+     232 = LOGIC !A | B
+     240 = LOGIC A | B
+     248 = LOGIC always
+
+     * For PLL modes add:
+       0 = VCO / 128
+       1 = VCO / 64
+       2 = VCO / 32
+       3 = VCO / 16
+       4 = VCO / 8
+       5 = VCO / 4
+       6 = VCO / 2
+       7 = VCO / 1
 ----------------------------------------------------------------------------
 Version 00.00.15
   Added: "/" and "//" operators and __REMAINDER system variable (same as __temp1)

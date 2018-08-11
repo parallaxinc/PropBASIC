@@ -40,6 +40,7 @@ Begin
   sName:='__temp1';
   If g_apoCmdVars[2]^.eGetType In [e_ShortConst, e_LongConst, e_LongVar] Then
   Begin
+    // Hub write to a pointer
     Case g_apoCmdVars[2]^.eGetType of
       e_ShortConst: OutStr('  mov __temp1,#'+g_apoCmdVars[2]^.sGetName);
       e_LongConst, e_LongVar:
@@ -161,7 +162,7 @@ Begin
      Else ProcessHubAddrLit(2, '__temp1', 2);
   End;
   iPlace:=3;
-  If g_asCmdLine[3] = '(' Then iPlace:=6;
+  // 12-23-2017 If g_asCmdLine[3] = '(' Then iPlace:=6;
   Repeat
     If g_asCmdLine[iPlace] = ',' Then
     Begin
@@ -249,7 +250,7 @@ Begin
      Else ProcessHubAddrLit(2, '__temp1', 2);
   End;
   iPlace:=3;
-  If g_asCmdLine[3] = '(' Then iPlace:=6;
+  // 12-23-2017 If g_asCmdLine[3] = '(' Then iPlace:=6;
   Repeat
     If g_asCmdLine[iPlace] = ',' Then
     Begin
@@ -342,7 +343,7 @@ Begin
      Else ProcessHubAddrLit(2, '__temp1', 1);
   End;
   iPlace:=3;
-  If g_asCmdLine[3] = '(' Then iPlace:=6;
+  // 12-23-2017 If g_asCmdLine[3] = '(' Then iPlace:=6;
   Repeat
     If g_asCmdLine[iPlace] = ',' Then
     Begin
@@ -429,7 +430,7 @@ Begin
      Else ProcessHubAddrLit(2, '__temp1', 1);
   End;
   iPlace:=3;
-  If g_asCmdLine[3] = '(' Then iPlace:=6;
+  // 12-23-2017 If g_asCmdLine[3] = '(' Then iPlace:=6;
   Repeat
     If g_asCmdLine[iPlace] = ',' Then
     Begin
@@ -522,7 +523,7 @@ Begin
      Else ProcessHubAddrLit(2, '__temp1', 4);
   End;
   iPlace:=3;
-  If g_asCmdLine[3] = '(' Then iPlace:=6;
+  // 12-23-2017 If g_asCmdLine[3] = '(' Then iPlace:=6;
   Repeat
     If g_asCmdLine[iPlace] = ',' Then
     Begin
@@ -612,7 +613,7 @@ Begin
      Else ProcessHubAddrLit(2, '__temp1', 2);
   End;
   iPlace:=3;
-  If g_asCmdLine[3] = '(' Then iPlace:=6;
+  // 12-23-2017 If g_asCmdLine[3] = '(' Then iPlace:=6;
   Repeat
     If g_asCmdLine[iPlace] = ',' Then
     Begin
@@ -702,7 +703,7 @@ Begin
      Else ProcessHubAddrLit(2, '__temp1', 1);
   End;
   iPlace:=3;
-  If g_asCmdLine[3] = '(' Then iPlace:=6;
+  // 12-23-2017 If g_asCmdLine[3] = '(' Then iPlace:=6;
   Repeat
     If g_asCmdLine[iPlace] = ',' Then
     Begin

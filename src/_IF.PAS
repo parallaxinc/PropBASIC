@@ -734,8 +734,11 @@ Begin // ProcessIf  "IF var cond var THEN {label}"
       End; // Case
       If (g_iIfCnt > 0) Then
       Begin
+        // Feb 13,2016 If ((g_iCmdCnt In [4, 6]) and ((g_arIf[g_iIfCnt].bIsOR) or (g_arIf[g_iIfCnt].bIsAND))) or
+        //   ((g_iCmdCnt In [3, 5]) and ((g_arIf[g_iIfCnt-1].bIsOr) or (g_arIf[g_iIfCnt-1].bIsAND))) Then
         If ((g_iCmdCnt In [4, 6]) and ((g_arIf[g_iIfCnt].bIsOR) or (g_arIf[g_iIfCnt].bIsAND))) or
-           ((g_iCmdCnt In [3, 5]) and ((g_arIf[g_iIfCnt-1].bIsOr) or (g_arIf[g_iIfCnt-1].bIsAND))) Then
+           ((g_iIfCnt > 1) and
+            ((g_iCmdCnt In [3, 5]) and ((g_arIf[g_iIfCnt-1].bIsOr) or (g_arIf[g_iIfCnt-1].bIsAND)))) Then
         Begin
           If g_iCmdCnt In [4, 6] Then
           Begin

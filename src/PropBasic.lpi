@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <PathDelim Value="\"/>
     <General>
       <Flags>
@@ -18,11 +18,65 @@
     <i18n>
       <EnableI18N LFM="False"/>
     </i18n>
-    <VersionInfo>
-      <StringTable ProductVersion=""/>
-    </VersionInfo>
-    <BuildModes Count="1">
+    <BuildModes Count="3">
       <Item1 Name="Default" Default="True"/>
+      <Item2 Name="Debug">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <SyntaxMode Value="Delphi"/>
+              <IncludeAssertionCode Value="True"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <Checks>
+              <IOChecks Value="True"/>
+              <RangeChecks Value="True"/>
+              <OverflowChecks Value="True"/>
+              <StackChecks Value="True"/>
+            </Checks>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <DebugInfoType Value="dsDwarf2Set"/>
+              <UseExternalDbgSyms Value="True"/>
+            </Debugging>
+          </Linking>
+        </CompilerOptions>
+      </Item2>
+      <Item3 Name="Release">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <SyntaxMode Value="Delphi"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <SmartLinkUnit Value="True"/>
+            <Optimizations>
+              <OptimizationLevel Value="3"/>
+            </Optimizations>
+            <SmallerCode Value="True"/>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <GenerateDebugInfo Value="False"/>
+              <StripSymbols Value="True"/>
+            </Debugging>
+            <LinkSmart Value="True"/>
+          </Linking>
+        </CompilerOptions>
+      </Item3>
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
@@ -32,7 +86,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="&quot;e:\propbasic\test.pbas&quot; /p /e"/>
+        <CommandLineParams Value="&quot;C:\users\bean\dropbox\terry\PropBasic\test.pbas&quot; /p /e"/>
       </local>
     </RunParams>
     <Units Count="26">
@@ -43,12 +97,10 @@
       <Unit1>
         <Filename Value="DEVICES.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="DEVICES"/>
       </Unit1>
       <Unit2>
         <Filename Value="GLOBAL.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="GLOBAL"/>
       </Unit2>
       <Unit3>
         <Filename Value="_BRANCH.PAS"/>
@@ -68,7 +120,6 @@
       <Unit6>
         <Filename Value="_IF.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="_If"/>
       </Unit6>
       <Unit7>
         <Filename Value="_DO.PAS"/>
@@ -83,7 +134,6 @@
       <Unit9>
         <Filename Value="_LET.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="_Let"/>
       </Unit9>
       <Unit10>
         <Filename Value="_LOOKUP.PAS"/>
@@ -93,7 +143,6 @@
       <Unit11>
         <Filename Value="_PAUSE.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="_PAUSE"/>
       </Unit11>
       <Unit12>
         <Filename Value="_PULSE.PAS"/>
@@ -103,7 +152,6 @@
       <Unit13>
         <Filename Value="_I2C.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="_I2C"/>
       </Unit13>
       <Unit14>
         <Filename Value="_ONEWIRE.PAS"/>
@@ -128,7 +176,6 @@
       <Unit18>
         <Filename Value="_SERIAL.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="_SERIAL"/>
       </Unit18>
       <Unit19>
         <Filename Value="_SHIFT.PAS"/>
@@ -138,7 +185,6 @@
       <Unit20>
         <Filename Value="_VAR.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="_VAR"/>
       </Unit20>
       <Unit21>
         <Filename Value="_INPUT.PAS"/>
@@ -148,17 +194,14 @@
       <Unit22>
         <Filename Value="_MISC.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="_MISC"/>
       </Unit22>
       <Unit23>
         <Filename Value="_PROP.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="_PROP"/>
       </Unit23>
       <Unit24>
         <Filename Value="_TASK.PAS"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="_task"/>
       </Unit24>
       <Unit25>
         <Filename Value="_DEBUG.PAS"/>
@@ -183,12 +226,6 @@
         <GenerateDebugInfo Value="False"/>
       </Debugging>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <MsgFileName Value=""/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

@@ -91,16 +91,26 @@ Var
 
   Procedure ProcessLetLongAssign;
   Var
-    sOp: String[6];
+    sOp: String[8];
   Begin { Simple Assignment }
+    sOp:='  mov ';
     If ((g_asCmdLine[5] = '-') or (g_asCmdLine[5] = '<<') or (g_asCmdLine[5] = '>>')) and
      (g_iCmdCnt = 6) and (g_apoCmdVars[2]^.m_sAlias = g_apoCmdVars[6]^.m_sAlias) and
      (g_apoCmdVars[2]^.m_sIndex = g_apoCmdVars[6]^.m_sIndex) Then
     Begin
-      { w1 = 1000 - w1 }
-      OutStr('  mov __temp1,'+g_apoCmdVars[6]^.sGetIndexName);
+      // Feb 12,2016 OutStr('  mov __temp1,'+g_apoCmdVars[6]^.sGetIndexName);
+      If g_asCmdLine[5] = '-' Then
+      Begin
+        { w1 = 1000 - w1 }
+        OutStr('  neg '+g_apoCmdVars[2]^.sGetIndexName+','+g_apoCmdVars[2]^.sGetIndexName);
+        sOp:='  adds ';
+      End
+      Else OutStr('  mov __temp1,'+g_apoCmdVars[6]^.sGetIndexName);
     End;
-    If (g_asUnaryOperator[4] = '~') or (g_asUnaryOperator[4] = '-') Then sOp:='  neg ' Else sOp:='  mov ';
+    If (g_asUnaryOperator[4] = '~') or ((g_asUnaryOperator[4] = '-') and (Not (g_asCmdLine[4, 2] In ['0'..'9']))) Then
+    Begin
+      If sOp='  mov ' Then sOp:='  neg ' else sOp:='  subs ';
+    End;
     Case g_apoCmdVars[4]^.eGetType of
       e_Pin:
         Begin
@@ -133,8 +143,9 @@ Var
         Begin
           If g_apoCmdVars[2]^.m_bVarIndex = False Then
           Begin
-            If (g_asUnaryOperator[4] = '~') or ((g_asUnaryOperator[4] ='-') and (Not (g_asCmdLine[4, 2] In ['0'..'9']))) Then OutStr('  neg '+g_apoCmdVars[2]^.sGetIndexName+','+g_apoCmdVars[4]^.sGetIndexName)
-             Else OutStr('  mov '+g_apoCmdVars[2]^.sGetIndexName+','+g_apoCmdVars[4]^.sGetIndexName);
+            // Feb 12,2016 If (g_asUnaryOperator[4] = '~') or ((g_asUnaryOperator[4] ='-') and (Not (g_asCmdLine[4, 2] In ['0'..'9']))) Then OutStr('  neg '+g_apoCmdVars[2]^.sGetIndexName+','+g_apoCmdVars[4]^.sGetIndexName)
+            // Else OutStr('  mov '+g_apoCmdVars[2]^.sGetIndexName+','+g_apoCmdVars[4]^.sGetIndexName);
+            OutStr(sOp+g_apoCmdVars[2]^.sGetIndexName+','+g_apoCmdVars[4]^.sGetIndexName);
           End
           Else
           Begin // Index is a var
@@ -150,8 +161,9 @@ Var
               OutStr('  movd $+2,'+g_apoCmdVars[2]^.m_sIndex);
               OutStr('  sub '+g_apoCmdVars[2]^.m_sIndex+',#'+g_apoCmdVars[2]^.sGetName);
             End;
-            If (g_asUnaryOperator[4] = '~') or ((g_asUnaryOperator[4] ='-') and (Not (g_asCmdLine[4, 2] In ['0'..'9']))) Then OutStr('  neg 0-0,'+g_apoCmdVars[4]^.sGetIndexName)
-             Else OutStr('  mov 0-0,'+g_apoCmdVars[4]^.sGetIndexName);
+            //Feb 12,2016  If (g_asUnaryOperator[4] = '~') or ((g_asUnaryOperator[4] ='-') and (Not (g_asCmdLine[4, 2] In ['0'..'9']))) Then OutStr('  neg 0-0,'+g_apoCmdVars[4]^.sGetIndexName)
+            // Else OutStr('  mov 0-0,'+g_apoCmdVars[4]^.sGetIndexName);
+            OutStr(sOp+'0-0,'+g_apoCmdVars[4]^.sGetIndexName);
           End;
           g_bHandled:=True;
         End;
@@ -159,8 +171,9 @@ Var
         Begin
           If g_apoCmdVars[2]^.m_bVarIndex = False Then
           Begin
-            If (g_asUnaryOperator[4] = '~') or ((g_asUnaryOperator[4] ='-') and (Not (g_asCmdLine[4, 2] In ['0'..'9']))) Then OutStr('  neg '+g_apoCmdVars[2]^.sGetIndexName+',#'+g_apoCmdVars[4]^.sGetName)
-             Else OutStr('  mov '+g_apoCmdVars[2]^.sGetIndexName+',#'+g_apoCmdVars[4]^.sGetName);
+            //Feb 12,2016 If (g_asUnaryOperator[4] = '~') or ((g_asUnaryOperator[4] ='-') and (Not (g_asCmdLine[4, 2] In ['0'..'9']))) Then OutStr('  neg '+g_apoCmdVars[2]^.sGetIndexName+',#'+g_apoCmdVars[4]^.sGetName)
+            // Else OutStr('  mov '+g_apoCmdVars[2]^.sGetIndexName+',#'+g_apoCmdVars[4]^.sGetName);
+            OutStr(sOp+g_apoCmdVars[2]^.sGetIndexName+',#'+g_apoCmdVars[4]^.sGetName);
           End
           Else
           Begin // Index is a var
@@ -176,8 +189,9 @@ Var
               OutStr('  movd $+2,'+g_apoCmdVars[2]^.m_sIndex);
               OutStr('  sub '+g_apoCmdVars[2]^.m_sIndex+',#'+g_apoCmdVars[2]^.sGetName);
             End;
-            If (g_asUnaryOperator[4] = '~') or ((g_asUnaryOperator[4] ='-') and (Not (g_asCmdLine[4, 2] In ['0'..'9']))) Then OutStr('  neg 0-0,#'+g_apoCmdVars[4]^.sGetName)
-             Else OutStr('  mov 0-0,#'+g_apoCmdVars[4]^.sGetName);
+            // Feb 12,2016 If (g_asUnaryOperator[4] = '~') or ((g_asUnaryOperator[4] ='-') and (Not (g_asCmdLine[4, 2] In ['0'..'9']))) Then OutStr('  neg 0-0,#'+g_apoCmdVars[4]^.sGetName)
+            // Else OutStr('  mov 0-0,#'+g_apoCmdVars[4]^.sGetName);
+            OutStr(sOp+'0-0,#'+g_apoCmdVars[4]^.sGetName);
           End;
           g_bHandled:=True;
         End;
@@ -303,7 +317,7 @@ Var
 
   Procedure ProcessLetLongVarSUB;
   Begin { Subtraction }
-    // Special case W1 = x - W1 ; Here W1's original value is put into __TEMP1
+    // Special case W1 = x - W1 ; Here we do NEG W1 then ADDS W1,x
     Case g_apoCmdVars[6]^.eGetType of
       e_LongConst:
         Begin
@@ -317,7 +331,7 @@ Var
           If (g_apoCmdVars[6]^.m_sAlias = g_apoCmdVars[2]^.m_sAlias) and
              (g_apoCmdVars[6]^.m_sIndex = g_apoCmdVars[2]^.m_sIndex) Then
           Begin
-            OutStr('  subs '+g_apoCmdVars[2]^.sGetIndexName+',__temp1');
+            // Feb 12,2016 OutStr('  subs '+g_apoCmdVars[2]^.sGetIndexName+',__temp1');
           End
           Else
           Begin
@@ -646,9 +660,11 @@ Var
     lShift1: LongInt;
     lShift2: LongInt;
     bShift: Boolean;
+    bTimesZero: Boolean;
   Begin { Multiplication }
     If g_iCmdCnt = 6 Then
     Begin
+      If (g_apoCmdVars[6]^.eGetType = e_ShortConst) and (g_apoCmdVars[6]^.lGetValue = 0) Then bTimesZero:=True Else bTimesZero:=False;
       lShift1:=-1;
       lShift2:=-1;
       bShift:=False;
@@ -694,7 +710,7 @@ Var
                 OutStr('  add __INDEX,'+g_apoCmdVars[4]^.m_sIndex);
                 OutStr('  jmp #_LMM_MOVS');
                 OutStr('  mov __temp1,0-0');
-// is this needed ???                OutStr('  shl __temp1,#'+IntStr(lShift1));
+                If lShift1 > 0 Then OutStr('  shl __temp1,#'+IntStr(lShift1));
                 OutStr('  mov __INDEX,#'+g_apoCmdVars[2]^.sGetName);
                 OutStr('  add __INDEX,'+g_apoCmdVars[2]^.m_sIndex);
                 OutStr('  jmp #_LMM_MOVD');
@@ -705,7 +721,7 @@ Var
                 OutStr('  movs $+2,'+g_apoCmdVars[4]^.m_sIndex);
                 OutStr('  sub '+g_apoCmdVars[4]^.m_sIndex+',#'+g_apoCmdVars[4]^.sGetName);
                 OutStr('  mov __temp1,0-0');
-                OutStr('  shl __temp1,#'+IntStr(lShift1));
+                If lShift1 > 0 Then OutStr('  shl __temp1,#'+IntStr(lShift1));
                 OutStr('  add '+g_apoCmdVars[2]^.m_sIndex+',#'+g_apoCmdVars[2]^.sGetName);
                 OutStr('  movd $+2,'+g_apoCmdVars[2]^.m_sIndex);
                 OutStr('  sub '+g_apoCmdVars[2]^.m_sIndex+',#'+g_apoCmdVars[2]^.sGetName);
@@ -726,7 +742,7 @@ Var
                 OutStr('  movd $+2,'+g_apoCmdVars[2]^.m_sIndex);
                 OutStr('  sub '+g_apoCmdVars[2]^.m_sIndex+',#'+g_apoCmdVars[2]^.sGetName);
               End;
-              OutStr('  shl 0-0,#'+IntStr(lShift1));
+              If lShift1 > 0 Then OutStr('  shl 0-0,#'+IntStr(lShift1));
             End;
           End
           Else
@@ -739,7 +755,7 @@ Var
             If lShift2 > 0 Then
             Begin
               OutStr('  mov __temp2,__temp1');
-              OutStr('  shl __temp1,#'+IntStr(lShift1));
+              If lShift1 > 0 Then OutStr('  shl __temp1,#'+IntStr(lShift1));
               OutStr('  shl __temp2,#'+IntStr(lShift2));
               OutStr('  add __temp1,__temp2');
             End
@@ -790,96 +806,113 @@ Var
 
             If lShift2 > 0 Then
             Begin
-              OutStr('  mov __temp1,'+g_apoCmdVars[2]^.sGetIndexName);
-              OutStr('  shl '+g_apoCmdVars[2]^.sGetIndexName+',#'+IntStr(lShift1));
-              OutStr('  shl __temp1,#'+IntStr(lShift2));
-              OutStr('  add '+g_apoCmdVars[2]^.sGetIndexname+',__temp1');
+              If (lShift1 = 0) and (lShift2 = 1) and (Upper(g_apoCmdVars[2]^.sGetIndexName) <> Upper(g_apoCmdVars[4]^.sGetIndexName)) Then
+              Begin
+                // * 3
+                OutStr('  add '+g_apoCmdVars[2]^.sGetIndexName+','+g_apoCmdVars[4]^.sGetIndexName);
+                OutStr('  add '+g_apoCmdVars[2]^.sGetIndexName+','+g_apoCmdVars[4]^.sGetIndexName);
+              End
+              Else
+              Begin
+                OutStr('  mov __temp1,'+g_apoCmdVars[2]^.sGetIndexName);
+                If lShift1 > 0 Then OutStr('  shl '+g_apoCmdVars[2]^.sGetIndexName+',#'+IntStr(lShift1));
+                OutStr('  shl __temp1,#'+IntStr(lShift2));
+
+                OutStr('  add '+g_apoCmdVars[2]^.sGetIndexname+',__temp1');
+              End;
             End
-            Else OutStr('  shl '+g_apoCmdVars[2]^.sGetIndexName+',#'+IntStr(lShift1));
+            Else If lShift1 > 0 Then OutStr('  shl '+g_apoCmdVars[2]^.sGetIndexName+',#'+IntStr(lShift1)) Else If g_sOrigLine <> '' Then OutStr('  '+chr(39)+'*1');
           End;
         End;
         g_bHandled:=True;
       End
       Else
       Begin
-        Case g_apoCmdVars[4]^.eGetType of
-          e_LongConst, e_LongVar:
-          Begin
-            If g_apoCmdVars[4]^.m_bVarIndex Then
+        If Not bTimesZero Then
+        Begin
+          Case g_apoCmdVars[4]^.eGetType of
+            e_LongConst, e_LongVar:
             Begin
-              If g_bLMM Then
+              If g_apoCmdVars[4]^.m_bVarIndex Then
               Begin
-                OutStr('  mov __INDEX,#'+g_apoCmdVars[4]^.sGetName);
-                OutStr('  add __INDEX,'+g_apoCmdVars[4]^.m_sIndex);
-                OutStr('  jmp #_LMM_MOVS');
+                If g_bLMM Then
+                Begin
+                  OutStr('  mov __INDEX,#'+g_apoCmdVars[4]^.sGetName);
+                  OutStr('  add __INDEX,'+g_apoCmdVars[4]^.m_sIndex);
+                  OutStr('  jmp #_LMM_MOVS');
+                End
+                Else
+                Begin
+                  OutStr('  add '+g_apoCmdVars[4]^.m_sIndex+',#'+g_apoCmdVars[4]^.sGetName);
+                  OutStr('  movs $+2,'+g_apoCmdVars[4]^.m_sIndex);
+                  OutStr('  sub '+g_apoCmdVars[4]^.m_sIndex+',#'+g_apoCmdVars[4]^.sGetName);
+                End;
+                OutStr('  mov __temp1,0-0');
               End
-              Else
-              Begin
-                OutStr('  add '+g_apoCmdVars[4]^.m_sIndex+',#'+g_apoCmdVars[4]^.sGetName);
-                OutStr('  movs $+2,'+g_apoCmdVars[4]^.m_sIndex);
-                OutStr('  sub '+g_apoCmdVars[4]^.m_sIndex+',#'+g_apoCmdVars[4]^.sGetName);
-              End;
-              OutStr('  mov __temp1,0-0');
-            End
-            Else If Upper(g_apoCmdVars[4]^.sGetName) <> '__TEMP1' Then OutStr('  mov __temp1,'+g_apoCmdVars[4]^.sGetIndexName);
+              Else If Upper(g_apoCmdVars[4]^.sGetName) <> '__TEMP1' Then OutStr('  mov __temp1,'+g_apoCmdVars[4]^.sGetIndexName);
+            End;
+            e_ShortConst: OutStr('  mov __temp1,#'+g_apoCmdVars[4]^.sGetIndexName);
           End;
-          e_ShortConst: OutStr('  mov __temp1,#'+g_apoCmdVars[4]^.sGetIndexName);
-        End;
-        Case g_apoCmdVars[6]^.eGetType of
-          e_LongConst, e_LongVar:
-            If g_apoCmdVars[4]^.m_bVarIndex Then
-            Begin
-              If g_bLMM Then
+          Case g_apoCmdVars[6]^.eGetType of
+            e_LongConst, e_LongVar:
+              If g_apoCmdVars[4]^.m_bVarIndex Then
               Begin
-                OutStr('  mov __INDEX,#'+g_apoCmdVars[6]^.sGetName);
-                OutStr('  add __INDEX,'+g_apoCmdVars[6]^.m_sIndex);
-                OutStr('  jmp #_LMM_MOVS');
+                If g_bLMM Then
+                Begin
+                  OutStr('  mov __INDEX,#'+g_apoCmdVars[6]^.sGetName);
+                  OutStr('  add __INDEX,'+g_apoCmdVars[6]^.m_sIndex);
+                  OutStr('  jmp #_LMM_MOVS');
+                End
+                Else
+                Begin
+                  OutStr('  add '+g_apoCmdVars[6]^.m_sIndex+',#'+g_apoCmdVars[6]^.sGetName);
+                  OutStr('  movs $+2,'+g_apoCmdVars[6]^.m_sIndex);
+                  OutStr('  sub '+g_apoCmdVars[6]^.m_sIndex+',#'+g_apoCmdVars[6]^.sGetName);
+                End;
+                OutStr('  mov __temp2,0-0');
               End
-              Else
-              Begin
-                OutStr('  add '+g_apoCmdVars[6]^.m_sIndex+',#'+g_apoCmdVars[6]^.sGetName);
-                OutStr('  movs $+2,'+g_apoCmdVars[6]^.m_sIndex);
-                OutStr('  sub '+g_apoCmdVars[6]^.m_sIndex+',#'+g_apoCmdVars[6]^.sGetName);
-              End;
-              OutStr('  mov __temp2,0-0');
-            End
-            Else OutStr('  mov __temp2,'+g_apoCmdVars[6]^.sGetIndexName);
-          e_ShortConst: OutStr('  mov __temp2,#'+g_apoCmdVars[6]^.sGetIndexName);
-          Else Error(c_iErrorInvalidParameter, 6);
-        End;
+              Else OutStr('  mov __temp2,'+g_apoCmdVars[6]^.sGetIndexName);
+            e_ShortConst: OutStr('  mov __temp2,#'+g_apoCmdVars[6]^.sGetIndexName);
+            Else Error(c_iErrorInvalidParameter, 6);
+          End;
+        End; // Not bTimesZero
 
-        g_bUsesMult:=True;
-        If g_bLMM Then
+        If Not bTimesZero Then
         Begin
-          OutStr('  jmp #_LMM_CALL');
-          OutStr('  long @@@_MULTIPLY');
-        End
-        Else OutStr('  call #_MULTIPLY');
-{
-        // Set Zero flag to sign
-        OutStr('  abs __temp1,__temp1 WC');
-        OutStr('  muxc __temp3,#1');
-        OutStr('  abs __temp2,__temp2 WC');
-        OutStr('  IF_C xor __temp3,#1');
+          g_bUsesMult:=True;
 
-        OutStr('  mov __temp4,#0');
-        OutStr('  mov __temp5,#32');
-        OutStr('  shr __temp1,#1 WC');
-        OutStr(NewLabelStr);
-        OutStr('  IF_C add __temp4,__temp2 WC');
-        OutStr('  rcr __temp4,#1 WC');
-        OutStr('  rcr __temp1,#1 WC');
-        If g_bLMM Then
-        Begin
-          OutStr('  djnz __temp5,#_LMM_JUMP');
-          OutStr('  long @@@'+LabelStr);
-        End
-        Else OutStr('  djnz __temp5,#'+LabelStr);
-        OutStr('  test __temp3,#1 WZ');
-        OutStr('  IF_NZ neg __temp4,__temp4');
-        OutStr('  IF_NZ neg __temp1,__temp1 WZ');
-        OutStr('  IF_NZ sub __temp4,#1');
-}
+          If g_bLMM Then
+          Begin
+            OutStr('  jmp #_LMM_CALL');
+            OutStr('  long @@@_MULTIPLY');
+          End
+          Else OutStr('  call #_MULTIPLY');
+        End; // Not bTimesZero
+  {
+          // Set Zero flag to sign
+          OutStr('  abs __temp1,__temp1 WC');
+          OutStr('  muxc __temp3,#1');
+          OutStr('  abs __temp2,__temp2 WC');
+          OutStr('  IF_C xor __temp3,#1');
+
+          OutStr('  mov __temp4,#0');
+          OutStr('  mov __temp5,#32');
+          OutStr('  shr __temp1,#1 WC');
+          OutStr(NewLabelStr);
+          OutStr('  IF_C add __temp4,__temp2 WC');
+          OutStr('  rcr __temp4,#1 WC');
+          OutStr('  rcr __temp1,#1 WC');
+          If g_bLMM Then
+          Begin
+            OutStr('  djnz __temp5,#_LMM_JUMP');
+            OutStr('  long @@@'+LabelStr);
+          End
+          Else OutStr('  djnz __temp5,#'+LabelStr);
+            OutStr('  test __temp3,#1 WZ');
+          OutStr('  IF_NZ neg __temp4,__temp4');
+          OutStr('  IF_NZ neg __temp1,__temp1 WZ');
+          OutStr('  IF_NZ sub __temp4,#1');
+  }
         If g_apoCmdVars[2]^.m_bVarIndex Then
         Begin
           If g_bLMM Then
@@ -894,9 +927,14 @@ Var
             OutStr('  movd $+2,'+g_apoCmdVars[2]^.m_sIndex);
             OutStr('  sub '+g_apoCmdVars[2]^.m_sIndex+',#'+g_apoCmdVars[2]^.sGetName);
           End;
-          OutStr('  mov 0-0,__temp1');
+          If (g_apoCmdVars[6]^.eGetType = e_ShortConst) and (g_apoCmdVars[6]^.lGetValue = 0) Then OutStr('  mov 0-0,#0')
+           Else OutStr('  mov 0-0,__temp1');
         End
-        Else OutStr('  mov '+g_apoCmdVars[2]^.sGetIndexName+',__temp1');
+        Else
+        Begin
+          If (g_apoCmdVars[6]^.eGetType = e_ShortConst) and (g_apoCmdVars[6]^.lGetValue = 0) Then OutStr('  mov '+g_apoCmdVars[2]^.sGetIndexName+',#0')
+           Else OutStr('  mov '+g_apoCmdVars[2]^.sGetIndexName+',__temp1');
+        End;
         g_bHandled:=True;
       End;
     End

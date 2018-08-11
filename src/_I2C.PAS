@@ -24,6 +24,8 @@ Var
   sDelay: String[32];
   sSDA, sSCL: String[32];
 Begin
+  sSDA:=''; // Avoid Lazarus warning
+  sSCL:=''; // Avoid Lazarus warning
   If g_iCmdCnt = 4 Then
   Begin
     If g_asCmdLine[3] <> ',' Then Error(c_iErrorCommaExpected, 3);
@@ -64,6 +66,8 @@ Begin
     OutStr('  andn outa,'+sSDA);
     // Make SCL an output
     OutStr('  or dira,'+sSCL);
+    // Setup try limit
+    OutStr('  mov __temp4,#10');
     // Create loop label
     OutStr(NewLabelStr);
     // Make SCL low
@@ -73,6 +77,7 @@ Begin
     dDelay:=dDelay / g_dI2CSpeed;
     lDelay:=Trunc(dDelay);
     If lDelay < 20 Then lDelay:=20;
+    If g_bLMM and (lDelay < 150) Then lDelay:=150;
     If lDelay > 511 Then
     Begin
       If g_oDevice.pGetVarPtr('_'+IntStr(lDelay)) = Nil Then g_oDevice.pAddLongConst('_'+IntStr(lDelay), lDelay, IntStr(lDelay));
@@ -87,18 +92,18 @@ Begin
     OutStr('  or outa,'+sSCL);
     // Delay 5uSec
     OutStr('  waitcnt __temp3,'+sDelay);
-    // Make SDA an high
+    // Make SDA an input
     OutStr('  andn dira,'+sSDA);
     OutStr('  waitcnt __temp3,'+sDelay);
     // If SDA didn't go high, then pulse SCL again
     OutStr('  and '+sSDA+',ina  NR, WZ');
     If g_bLMM Then
     Begin
-        OutStr('  IF_Z sub __PC,#(($-'+LabelStr+')*4)+4');
-//      OutStr('  IF_Z jmp #_LMM_JUMP');
-//      OutStr('  long '+LabelStr+' * 4');
+      //OutStr('  IF_Z sub __PC,#(($-'+LabelStr+')*4)+4');
+      OutStr('  IF_Z djnz __temp4,#_LMM_JUMP');
+      OutStr('  long @@@'+LabelStr);
     End
-    Else OutStr('  IF_Z jmp #'+LabelStr);
+    Else OutStr('  IF_Z djnz __temp4,#'+LabelStr);
     // Make SDA low
     OutStr('  or dira,'+sSDA);
     OutStr('  waitcnt __temp3,'+sDelay);
@@ -119,6 +124,8 @@ Var
   dDelay: Double;
   sDelay: String[32];
 Begin
+  sSDA:=''; // Avoid Lazarus warning
+  sSCL:=''; // Avoid Lazarus warning
   If g_iCmdCnt = 4 Then
   Begin
     If g_asCmdLine[3] <> ',' Then Error(c_iErrorCommaExpected, 3);
@@ -159,6 +166,7 @@ Begin
     dDelay:=dDelay / g_dI2CSpeed;
     lDelay:=Trunc(dDelay);
     If lDelay < 20 Then lDelay:=20;
+    If g_bLMM and (lDelay < 150) Then lDelay:=150;
     If lDelay > 511 Then
     Begin
       If g_oDevice.pGetVarPtr('_'+IntStr(lDelay)) = Nil Then g_oDevice.pAddLongConst('_'+IntStr(lDelay), lDelay, IntStr(lDelay));
@@ -194,6 +202,8 @@ Var
   dDelay: Double;
   sDelay: String[32];
 Begin
+  sSDA:=''; // Avoid Lazarus warning
+  sSCL:=''; // Avoid Lazarus warning
   If g_iCmdCnt In [6,8] Then
   Begin
     If g_asCmdLine[3] <> ',' Then Error(c_iErrorCommaExpected, 3);
@@ -256,12 +266,15 @@ Begin
       Else Error(c_iErrorInvalidParameter, 6);
     End; // Case
     OutStr('  mov __temp4,#9');
-    OutStr('  shl __temp3,#24');
+    // Insure that the 9th bit is a 1 so SDA is an INPUT
+    OutStr('  cmpsub 0,0 WC, NR '' Set Carry flag');
+    OutStr('  rcl __temp3,#24');
 
     dDelay:=g_lFreq Div 200000;
     dDelay:=dDelay / g_dI2CSpeed;
     lDelay:=Trunc(dDelay);
     If lDelay < 20 Then lDelay:=20;
+    If g_bLMM and (lDelay < 150) Then lDelay:=150;
     If lDelay > 511 Then
     Begin
       If g_oDevice.pGetVarPtr('_'+IntStr(lDelay)) = Nil Then g_oDevice.pAddLongConst('_'+IntStr(lDelay), lDelay, IntStr(lDelay));
@@ -276,8 +289,6 @@ Begin
     OutStr('  andn outa,'+sSCL);
     // Delay 5uSec
     OutStr('  waitcnt __temp5,'+sDelay);
-    // Insure that the 9th bit is a 1 so SDA is an INPUT
-    OutStr('  cmpsub 0,0 WC, NR '' Set Carry flag');
     // Make SDA direction = databit (0 = output, 1 = input)
     OutStr('  rcl __temp3,#1 WC');
     OutStr('  muxnc dira,'+sSDA);
@@ -327,6 +338,8 @@ Var
   dDelay: Double;
   sDelay: String[32];
 Begin
+  sSDA:=''; // Avoid Lazarus warning
+  sSCL:=''; // Avoid Lazarus warning
   If g_iCmdCnt = 8 Then
   Begin
     If g_asCmdLine[3] <> ',' Then Error(c_iErrorCommaExpected, 3);
@@ -371,6 +384,7 @@ Begin
     dDelay:=dDelay / g_dI2CSpeed;
     lDelay:=Trunc(dDelay);
     If lDelay < 20 Then lDelay:=20;
+    If g_bLMM and (lDelay < 150) Then lDelay:=150;
     If lDelay > 511 Then
     Begin
       If g_oDevice.pGetVarPtr('_'+IntStr(lDelay)) = Nil Then g_oDevice.pAddLongConst('_'+IntStr(lDelay), lDelay, IntStr(lDelay));

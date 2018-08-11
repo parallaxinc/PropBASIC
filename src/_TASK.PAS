@@ -51,6 +51,12 @@ Begin
      Else OutputVarsAndDelete(False, g_lProgInitDirA, g_lProgInitOutA, g_lProgInitDirB, g_lProgInitPinB, g_lProgInitDirC, g_lProgInitPinC, g_lProgInitDirD, g_lProgInitPinD);
 
     g_bLMM:=False;
+
+    g_bUsesPause:= False;
+    g_bUsesMult:= False;
+    g_bUsesDiv:= False;
+    g_bUsesStr:= False;
+
     g_iMinWaitCnt:=16;
     If g_iCmdCnt = 3 Then
     Begin
@@ -85,6 +91,7 @@ Begin
     OutSpin('DAT');
     OutSpin('  ORG 0');
     OutSpin('__INIT');
+    OutSpin('__RAM');
     OutStr('  mov dira,__InitDirA');
     OutStr('  mov outa,__InitOutA');
     g_bIsTask:=True;

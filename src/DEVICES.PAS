@@ -71,14 +71,14 @@ Begin
 
     poVar:=pAddLongVar('__temp1', False, '0');
     poVar^.m_bPermanent:=True;
-    poVar:=pAddLongVar('__remainder', False, '0');
-    poVar^.m_sAlias:='__temp1';
-    poVar^.m_bPermanent:=True;
     poVar:=pAddLongVar('__temp2', False, '0');
     poVar^.m_bPermanent:=True;
     poVar:=pAddLongVar('__temp3', False, '0');
     poVar^.m_bPermanent:=True;
     poVar:=pAddLongVar('__temp4', False, '0');
+    poVar^.m_bPermanent:=True;
+    poVar:=pAddLongVar('__remainder', False, '0');
+    poVar^.m_sAlias:='__temp4';
     poVar^.m_bPermanent:=True;
     poVar:=pAddLongVar('__temp5', False, '0');
     poVar^.m_bPermanent:=True;
