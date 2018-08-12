@@ -5,11 +5,6 @@
 *.binary
 *.compiled
 
-propbasic
-propbasic.exe
-PropBasic
-PropBasic.exe
-
 propbasic-*/
 propbasic-*.tgz
 propbasic-*.zip
