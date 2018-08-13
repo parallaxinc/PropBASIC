@@ -1,0 +1,74 @@
+
+
+' LOADing seperate SUBS and CODE files works in the Main Program as well as in Tasks
+
+
+' **************************************************************************************************************
+' NOTE: The Main Program MUST contain these two Variables because thy are used by this Library
+
+' LCD_Data          VAR   LONG        ' Data sent by Main Program to LCD. 
+' LCD_BUS_Data      VAR   LONG        ' Used Internally by LCD_EXPANDER_LIB.pbas
+
+' **************************************************************************************************************
+
+
+
+' !!!! NOTE: SUB WRITE_LCD is different for each of the different Expanders, so this LIB does not have a SUB for WRITE_LCD.
+'            SUB WRITE_LCD MUST be coded in the Main Program depending on which Expander you sre using.
+' Examples:
+
+' SUB Definition is the Same for all Expanders
+' WRITE_LCD      SUB   1
+
+' **************************************************************************************************************
+' I2C (PCF8574, MCP23008 & LCD2204 LCD Backpack
+' SUB WRITE_LCD
+   ' I2C_Out __param1, 1
+' ENDSUB
+' **************************************************************************************************************
+
+
+' **************************************************************************************************************
+' 74HC595:
+' SUB WRITE_LCD
+   ' SHIFTOUT SR_Data, SR_Clock, MSBFIRST, __param1\8  ' send the bits
+   ' PULSOUT SR_Latch, 1                               ' transfer to outputs
+' ENDSUB
+' **************************************************************************************************************
+
+
+' **************************************************************************************************************
+' MCP23S08:
+' SUB WRITE_LCD
+   ' LOW CS
+	' SHIFTOUT SI, SCK, MSBFIRST, Expander\8
+	' SHIFTOUT SI, SCK, MSBFIRST, Register_Address\8
+	' SHIFTOUT SI, SCK, MSBFIRST, __param1\8
+   ' HIGH CS
+' ENDSUB
+' **************************************************************************************************************
+
+
+
+' LCD PIN Mapping to IO Expander LCD_BUS_Data Bits
+' LCD_BL	   CON 	0
+' LCD_RS	   CON	1
+' LCD_RW	   CON	2
+' LCD_E		CON	3
+' LCD_D4    CON   4
+' LCD_D5    CON   5
+' LCD_D6    CON   6
+' LCD_D7    CON   7 
+
+
+LCD_INIT	   	SUB	0		' Initialise the LCD in 4-BIT Mode
+LCD_CMD        	SUB 1  		' Send Command Code to LCD
+LCD_BYTE       	SUB 1  		' Write a Byte to the LCD
+LCD_STR        	SUB 1, 2	' Write a String to the LCD
+LCD_DEC        	SUB 2  		' Write a Number to the LCD - No Leading Spaces, No Leading Zeroes
+LCD_DECLZ      	SUB 2  		' Write a Number to the LCD with Leading Zeroes
+LCD_DECLS      	SUB 2  		' Write a Number to the LCD with Leading Spaces 
+LCD_Get_Digit  	FUNC 2  	' Used by LCD_DEC, LCD_DECLS and LCD_DECLZ 
+LCD_ON      	SUB 0     	' Turn LCD and Backlight ON
+LCD_OFF     	SUB 0     	' Turn LCD and Backlight OFF
+LCD_CLEAR      	SUB 0     	' Clear LCD Screen

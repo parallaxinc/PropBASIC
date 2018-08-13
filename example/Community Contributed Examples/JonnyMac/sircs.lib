@@ -1,0 +1,102 @@
+' =================================================================================================
+' SIRCS Library for PropBASIC
+' -- by Jon McPhalen
+' -- 23 MAY 2010
+' -- requires PropBASIC 0.98a or later
+' =================================================================================================
+
+' NOTE: Uses CTRA and CTRA
+
+
+POS_DETECT      CON     64
+NEG_DETECT      CON     96
+FREE_RUN        CON     248
+
+'{$IFFREQ < 80_000_000}
+'{$ERROR SIRCS library designed for 80 or 100 MHz}
+'{$ENDIF}
+
+'{$IFFREQ = 80_000_000}
+
+MS_044          CON     3_520_000                               ' 44ms @ 80MHz
+BIT_S           CON       172_800                               ' 90% of 2.4ms
+BIT_1           CON        86_400                               ' 90% of 1.2ms
+BIT_0           CON        43_200                               ' 90% of 0.6ms
+
+'{$ELSE}
+
+MS_044          CON     4_400_000                               ' 44ms @ 100MHz
+BIT_S           CON       216_000                               ' 90% of 2.4ms
+BIT_1           CON       108_000                               ' 90% of 1.2ms
+BIT_0           CON        54_000                               ' 90% of 0.6ms
+
+'{$ENDIF}
+
+' -------------------------------------------------------------------------------------------------
+
+GET_SIRCS       FUNC    1                                       ' SIRCS + bit count
+
+
+' -------------------------------------------------------------------------------------------------
+'{$CODE}
+' -------------------------------------------------------------------------------------------------
+
+' Use: variable = GET_SIRCS pin#
+' -- waits for and returns SIRCS code and bit count
+' -- PropBASIC adaptation of my Spin/PASM object in Jan 2010 Nuts & Volts
+
+'{$IFUSED GET_SIRCS}
+FUNC GET_SIRCS
+
+  irPin         VAR     __param2                                ' pin # (not mask)
+  irCode        VAR     __param3
+  irBits        VAR     __param4
+
+  irPin = __param1                                              ' capture pin #
+
+  COUNTERA NEG_DETECT, irPin, 0, 1                              ' set for pulse timing
+  COUNTERB FREE_RUN, 0, 0, 1                                    ' set for frame timing
+
+  ASM
+                        mov     __temp1, #1                     ' convert pin to mask
+                        shl     __temp1, irPin
+                        mov     irPin, __temp1
+
+waitstart               waitpeq irPin, irPin                    ' wait for high
+                        mov     phsa, #0                        ' start bit timer
+                        waitpne irPin, irPin                    ' wait for low
+                        mov     phsb, #0                        ' start frame timer
+                        waitpeq irPin, irPin                    ' wait for high
+                        mov     __temp1, phsa                   ' capture phsa
+                        cmp     __temp1, BIT_S          wc, wz  ' valid start bit?
+        if_b            jmp     #waitstart                      ' try again if no
+
+                        mov     irCode, #0
+                        mov     irBits, #0                      ' reset bit count
+
+checkframe              mov     __temp1, phsb                   ' capture phsb
+                        cmp     __temp1, MS_044         wc, wz  ' check frame timer
+        if_ae           jmp     #irdone                         ' abort @44ms
+
+waitbit                 test    irPin, ina              wz      ' look for new bit
+        if_nz           jmp     #checkframe                     ' check for end if no bit
+
+measurebit              mov     phsa, #0                        ' resstart bit timer
+                        waitpeq irPin, irPin                    ' wait for high (end of bit)
+                        cmp     BIT_1, phsa             wc      ' ir bit --> C
+                        rcr     irCode, #1                      ' C --> irwork.31
+
+                        add     irBits, #1                      ' inc bit count
+                        cmp     irBits, #20             wc      ' at max?
+        if_b            jmp     #checkframe                     ' keep scanning if no
+
+irdone                  mov     __temp1, #32
+                        sub     __temp1, irBits
+                        shr     irCode, __temp1                 ' right align ir code
+
+  ENDASM
+  RETURN irCode, irBits
+
+  ENDFUNC
+'{$ENDIF}
+

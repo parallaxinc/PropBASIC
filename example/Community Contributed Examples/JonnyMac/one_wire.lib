@@ -1,0 +1,141 @@
+' ======================================================================
+' 1-Wire Library for PropBASIC
+' -- by Jon McPhalen
+' -- 28 MAY 2010
+' -- requires PropBASIC 0.98a or later
+' ======================================================================
+
+RD_ROM          CON     $33                     ' 1W ROM commands
+MATCH_ROM       CON     $55
+SKIP_ROM        CON     $CC
+SRCH_ROM        CON     $F0
+ALARM_SRCH      CON     $EC
+
+CVRT_TEMP       CON     $44                     ' DS1822 commands
+WR_SPAD         CON     $4E
+RD_SPAD         CON     $BE
+COPY_SPAD       CON     $48
+RD_EE           CON     $B8
+RD_POWER        CON     $B4
+
+
+' ----------------------------------------------------------------------
+
+OW_READ_SN      SUB     1                       ' read 1W serial #
+OW_WRITE_SN     SUB     1                       ' write 1W serial #
+
+OW_RESET        FUNC    0                       ' reset buss
+OW_WRITE        SUB     1, 2                    ' write bits to buss
+OW_READ         FUNC    0, 1                    ' read bits from buss
+
+
+' ----------------------------------------------------------------------
+'{$CODE}
+' ----------------------------------------------------------------------
+
+' Use: OW_READ_SN snAddr
+' -- reads 1-wire serial number from buss
+' -- snAddr is address of 8-byte DATA table
+
+'{$IFUSED OW_READ_SN}
+SUB OW_READ_SN
+
+  rsnIn         VAR     __param1
+  rsnAddr       VAR     __param3
+  rsnIdx        VAR     __param4
+
+  rsnAddr = __param1                            ' save address
+
+  OW_RESET
+  OW_WRITE RD_ROM
+
+  FOR rsnIdx = 0 TO 7
+    rsnIn = OW_READ                             ' read byte from 1W
+    WRBYTE rsnAddr, rsnIn                       ' save byte
+    INC rsnAddr                                 ' point to next
+  NEXT
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use OW_WRITE_SN snAddr
+' -- writes 1-wire serial number to buss
+' -- snAddr is address of 8-byte DATA table
+
+'{$IFUSED OW_WRITE_SN}
+SUB OW_WRITE_SN
+
+  wsnOut        VAR     __param1
+  wsnAddr       VAR     __param3
+  wsnIdx        VAR     __param4
+
+  wsnAddr = __param1                            ' save address
+
+  OW_RESET
+  OW_WRITE MATCH_ROM
+
+  FOR wsnIdx = 0 TO 7
+    RDBYTE wsnAddr, wsnOut                      ' get byte
+    OW_WRITE wsnOut                             ' write to 1W buss
+    INC wsnAddr                                 ' point to next
+  NEXT
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: {result =} OW_RESET
+' -- resets 1-Wire buss; can return
+' -- requires PIN defintion: DQ
+
+'{$IFUSED OW_RESET}
+FUNC OW_RESET
+
+  OWRESET DQ, __param1
+  RETURN __param1
+
+  ENDFUNC
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: OW_WRITE value {, bits}
+' -- writes byte to 1-Wire buss
+' -- requires PIN defintion: DQ
+
+'{$IFUSED OW_WRITE}
+SUB OW_WRITE
+
+  IF __paramcnt = 1 THEN
+    __param2 = 8
+  ENDIF
+
+  OWWRITE DQ, __param1\__param2
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: result = OW_READ {, bits }
+' -- read byte from 1-Wire buss
+' -- requires PIN defintion: DQ
+
+'{$IFUSED OW_READ}
+FUNC OW_READ
+
+  IF __paramcnt = 0 THEN
+    __param2 = 8
+  ELSE
+    __param2 = __param1
+  ENDIF
+
+  OWREAD DQ, __param1\__param2
+  RETURN __param1
+
+  ENDFUNC
+'{$ENDIF}
+

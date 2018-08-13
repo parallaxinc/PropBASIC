@@ -1,0 +1,224 @@
+' ' *******************************************************************************************
+  ' TASK Display_DS1302
+' ' *******************************************************************************************
+
+' *********************************************************
+'
+' This is an example of how to "LOAD" the Code for a Task.
+' The "TASK xxx" and "ENDTASK" declarations must be in the main program.
+' This Code gets loaded by "Example_Task_LOAD_Main_Program.pbas"
+'
+' *********************************************************
+
+' ----------------------------------------------------------------------
+' TASK COG: I/O Pins
+' ----------------------------------------------------------------------
+
+' ----------------------------------------------------------------------
+' TASK COG: Constants
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' TASK COG: Variables (Long only)
+' ----------------------------------------------------------------------
+TX_BAUD   VAR   LONG
+  
+Register_Address  VAR   LONG
+
+
+' NOTE: The Time Variables MUST BE IN THIS ORDER FOR THE WRITE AND READ LOOPS TO WORK!!!!!!   
+seconds     VAR     Long            
+minutes     VAR     Long            
+hours       VAR     Long           
+date        VAR     Long
+month       VAR     Long
+day         VAR     Long            
+year        VAR     Long         
+
+Index       VAR     Long
+
+temp_hours  VAR     Long
+
+
+' ----------------------------------------------------------------------
+' TASK COG: SUB & FUNC Definitions
+' ----------------------------------------------------------------------
+' !!! The LOAD SUB Commands for Libraries MUST BE BEFORE your own SUB and FUNC Declarations
+LOAD "D:\Propeller\Propeller Programs\Libraries\TX_RX_LIB_SUBS.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\DELAYS_LIB_SUBS.pbas"
+
+
+Shift_Out      SUB   1
+Shift_In       FUNC  0
+Read_RAM       FUNC  0
+
+Read_Time      SUB   0
+Show_Time      SUB   0
+
+
+
+' ----------------------------------------------------------------------
+' Main Task Code
+' ----------------------------------------------------------------------
+MAIN:
+
+   TX_BAUD = Terminal_Baud
+
+   DELAY_MS 5000
+   TX_BYTE CLS
+
+   HIGH CS1302                             ' Select DS1302
+ 
+   Shift_Out CWPr  ' Initialize DS1302
+
+   Shift_Out WPr0  ' Clear Write Protect
+
+   LOW CS1302                              ' Deselect DS1302  
+
+
+DO
+
+   Read_Time
+   
+   Show_Time
+
+   DELAY_MS 200
+
+LOOP
+
+
+' ----------------------------------------------------------------------
+' TASK COG: SUB & FUNCTION Code
+' ----------------------------------------------------------------------
+
+' ----------------------------------------------------------------------
+SUB Shift_Out
+   SHIFTOUT DataIO, Clock, LSBFIRST, __param1\8
+ENDSUB
+
+
+' ----------------------------------------------------------------------
+FUNC Shift_In
+   SHIFTIN DataIO, Clock, LSBPRE, __param1\8
+   __param1 = __param1 >> 16
+   RETURN __param1
+ENDFUNC
+
+
+
+
+' ----------------------------------------------------------------------
+FUNC Read_RAM
+
+   __param2 = Register_Address << 1
+   __param2 = __param2 OR RdRam 
+
+   HIGH CS1302 
+   Shift_Out __param2
+   __param1 = Shift_In
+   LOW CS1302
+   RETURN __param1
+ENDFUNC
+
+
+
+' ----------------------------------------------------------------------
+SUB Read_Time
+
+   TX_BYTE HOME  
+
+   HIGH CS1302                             ' Select DS1302
+   
+   SHIFT_OUT RdBurst
+
+   FOR Index = 0 to 6
+      seconds(Index) = Shift_In
+   NEXT
+   
+   LOW CS1302 
+   
+   temp_hours = hours
+  
+   __param1 = hours AND %1000_0000
+   IF __param1 = %1000_0000 THEN     ' 12-Hour Mode is set (Bit7)
+      hours = hours AND %0101_1111     ' Clear Bit5 and Bit7
+   ELSE
+      hours = hours AND %0111_1111      ' Clear only Bit7 because Bit5 is the "20"s digit for 24-hour mode
+   ENDIF     
+
+ENDSUB
+
+
+
+' ----------------------------------------------------------------------
+SUB Show_Time
+
+   TX_BYTE HOME
+   TX_BYTE LF
+
+   TX_STR "Day "
+   
+   TX_HEX day, 2
+   
+   TX_BYTE " "
+
+' -- Get the Weekday Abbreviation from the DS1302 Static RAM and display
+   Register_Address = day - 1
+   Register_Address = Register_Address * 3
+   
+   __param4 = Register_Address + 2
+   
+   FOR Register_Address = Register_Address to __param4
+      day = Read_RAM
+      TX_BYTE day
+   NEXT
+
+' -- Display the Date and Time
+   TX_BYTE " "
+   
+   TX_HEX date, 2
+   
+   TX_BYTE "/"
+   
+   TX_HEX month, 2
+   
+   TX_STR "/20"
+   
+   TX_HEX year, 2
+   
+   TX_STR "  "
+   
+   TX_HEX hours, 2
+
+   TX_BYTE ":"
+  
+   TX_HEX minutes, 2
+
+   TX_BYTE ":"
+  
+   TX_HEX seconds, 2
+
+   __param1 = temp_hours AND %1000_0000
+   IF __param1 = %1000_0000 THEN     ' 12-Hour Mode is set (Bit 7)
+      __param1 = temp_hours AND %0010_0000     ' Check if Bit5 is set = PM
+      IF __param1 = %0010_0000 THEN
+         TX_STR " PM"
+      ELSE
+         TX_STR " AM"
+      ENDIF
+   ENDIF    
+   
+   TX_BYTE CLREOL
+
+ENDSUB
+
+
+' !!! The LOAD CODE Commands for Libraries MUST BE AFTER your own SUB and FUNC Declarations, i.e. just before "ENDTASK"
+LOAD "D:\Propeller\Propeller Programs\Libraries\TX_RX_LIB_CODE.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\DELAYS_LIB_CODE.pbas"
+
+' ENDTASK
+' ' *******************************************************************************************
+
+

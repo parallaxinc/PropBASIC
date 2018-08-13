@@ -1,0 +1,39 @@
+' ======================================================================
+' Delays Library for PropBASIC
+' -- by Jon McPhalen
+' -- 21 MAY 2010
+' -- requires PropBASIC 0.98a or later
+' ======================================================================
+
+' !!! The {$CODE} Command does NOT work when splittng the SUBS and the CODE !!!!!
+' The {$CODE} Command ONLY works if you "LOAD" the Complete File (inluding the SUBS) in the Main Program
+'
+' LOADing seperate SUBS and CODE files works in the Main Program as well as in Tasks
+'
+' ' ----------------------------------------------------------------------
+' '{$CODE}
+' ' ----------------------------------------------------------------------
+
+' Use: DELAY_MS duration
+' -- shell for PAUSE
+
+'{$IFUSED DELAY_MS}
+SUB DELAY_MS
+
+  PAUSE __param1
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: DELAY_US duration
+' -- shell for PAUSEUS
+
+'{$IFUSED DELAY_US}
+SUB DELAY_US
+
+  PAUSEUS __param1
+
+  ENDSUB
+'{$ENDIF}

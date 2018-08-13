@@ -1,0 +1,176 @@
+' ----------------------------------------------------------------------
+' GLOBAL: Device Settings
+' ----------------------------------------------------------------------
+DEVICE          P8X32A, XTAL1, PLL16X
+XIN             5_000_000
+
+' !!!!! You MUST use (at least 2 ms) DELAY_MS 2 after every PULSOUT LCD_E, 3
+
+
+
+' ----------------------------------------------------------------------
+' GLOBAL: I/O Pins
+' ----------------------------------------------------------------------
+
+LCD_RS      PIN   0    
+' LCD_RW      PIN      X    ' RDBYTE/Write - Connected directly to Ground       
+LCD_E       PIN   1   
+  
+LCD_DB4     PIN   2  
+LCD_DB5     PIN   3  
+LCD_DB6     PIN   4  
+LCD_DB7     PIN   5  
+
+LCD_Bus     PIN   5.. 2 OUTPUT   ' !!! The Pins must be in MSB to LSB Order. 4-bit LCD data bus PIN Group
+
+' ----------------------------------------------------------------------
+' GLOBAL: Constants
+' ----------------------------------------------------------------------
+
+
+
+' -----[ LCD Constants ]-------------------------------------------------------
+LcdCls       CON      $01                     ' clear the LCD
+' LcdHome      CON      $02                     ' move cursor home
+' LcdCrsrL     CON      $10                     ' move cursor left
+' LcdCrsrR     CON      $14                     ' move cursor right
+' LcdDispL     CON      $18                     ' shift LCD_Datas left
+' LcdDispR     CON      $1C                     ' shift LCD_Datas right
+LcdCGRam     CON      $40                     ' Character Generator RAM
+LcdLine1     CON      $80                     ' DDRAM address of line 1 (DB7 = 1)
+LcdLine2     CON      $C0                     ' DDRAM address of line 2
+LcdLine3     CON      $94                     ' DDRAM address of line 3
+LcdLine4     CON      $D4                     ' DDRAM address of line 4
+
+
+' ----------------------------------------------------------------------
+' GLOBAL: HUB Variables (Byte, Word, Long) - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' GLOBAL: DATA, WDATA, LDATA, FILE - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+Char0  DATA  "Testing DATA Line 01", 0
+Char1  DATA  "Testing DATA Line 02", "@"
+
+
+' ----------------------------------------------------------------------
+' COG 0: Variables (Long only)
+' ----------------------------------------------------------------------
+ ' **************************************************************************************************************
+' NOTE: The Main Program MUST contain this Variable because it is used by this Library
+
+LCD_Data          VAR   LONG        ' Data sent by Main Program to LCD.
+
+' **************************************************************************************************************
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Definitions
+' ----------------------------------------------------------------------
+LOAD "D:\Propeller\Propeller Programs\Libraries\DELAYS_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\LCD_DIRECT_LIB.pbas"
+
+
+' ----------------------------------------------------------------------
+' TASK Definitions
+' ----------------------------------------------------------------------
+
+
+' ======================================================================
+  PROGRAM START
+' ======================================================================
+
+START:
+
+OUTPUT LCD_Bus
+
+
+' -- Initialise LCD in 4-BIT Mode -----------------------------------------------------
+   LOW LCD_E      ' Set LCD Enable to Initial LOW State
+   LOW LCD_RS     ' NB!!! Set LCD RS to Command mode
+   DELAY_MS 100       ' let the LCD settle
+  
+   LCD_Bus = %0011        ' 8-bit mode
+   PULSOUT LCD_E, 1
+   DELAY_MS 5
+   PULSOUT LCD_E, 1
+   DELAY_MS 2
+   PULSOUT LCD_E, 1
+   DELAY_MS 2
+   LCD_Bus = %0010        ' 4-Bit Mode, 1-line, 5x7 font %00100000
+   PULSOUT LCD_E, 1
+   DELAY_MS 2
+   GOSUB LCD_CMD, %00001100        ' on, no crsr, no Blink 
+   GOSUB LCD_CMD, %00000110        ' Set Entry Mode
+
+   GOSUB LCD_CMD, LcdCls
+   
+
+' DELAY_MS 3000
+
+' -----[ Program Code ]----------------------------------------------------
+
+Main:
+   ' -- Write Message -------------------------------------------
+   GOSUB LCD_CMD, LcdLine1  
+   GOSUB LCD_STR, Char0
+   
+   ' -- Write Message -------------------------------------------
+   GOSUB LCD_CMD, LcdLine2  
+   GOSUB LCD_STR, Char1
+   
+   DELAY_MS 3000
+   GOSUB LCD_CMD, LcdCls  
+   
+   
+   ' Write the number without Leading Zeroes or Spaces
+   ' Digit_Count must be at least the same as the number of characters of the number else they will be truncated, but it doesn't matter if
+   ' Digit_Count is bigger than the number of characters
+   GOSUB LCD_CMD, LcdLine1
+   GOSUB LCD_STR, "No Leading Spaces   "
+   GOSUB LCD_CMD, LcdLine2
+   GOSUB LCD_STR, "No Leading Zeroes   "
+   
+   GOSUB LCD_CMD, LcdLine3   
+   GOSUB LCD_DEC, 123010, 10  ' GOSUB LCD_DEC, Number, How many Digits to write   
+   
+   DELAY_MS 5000
+   GOSUB LCD_CMD, LcdCls
+ 
+   
+   ' Write the number with Leading Zeroes
+   ' Digit_Count must be at least the same as the number of characters of the number else they will be truncated
+   GOSUB LCD_CMD, LcdLine1
+   GOSUB LCD_STR, "Leading Zeroes   "
+   
+   GOSUB LCD_CMD, LcdLine2    
+   GOSUB LCD_DECLZ, 123010, 10   ' GOSUB LCD_DEC, Number, How many Digits to write   
+   
+   DELAY_MS 5000
+   GOSUB LCD_CMD, LcdCls
+   
+   
+   ' Write the number with Leading Spaces
+   ' Digit_Count must be at least the same as the number of characters of the number else they will be truncated
+   GOSUB LCD_CMD, LcdLine1
+   GOSUB LCD_STR, "Leading Spaces   "
+   
+   GOSUB LCD_CMD, LcdLine2    
+   GOSUB LCD_DECLS, 123010, 10   ' GOSUB LCD_DEC, Number, How many Digits to write  
+   
+   DELAY_MS 5000   
+   DELAY_MS 5000   
+   GOSUB LCD_CMD, LcdCls  
+   
+   GOTO Main
+
+
+
+END
+
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Code
+' ----------------------------------------------------------------------

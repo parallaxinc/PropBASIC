@@ -1,0 +1,291 @@
+
+
+ ' **************************************************************************************************************
+' NOTE: The Main Program MUST contain this Variable because it is used by this Library
+
+' LCD_Data          VAR   LONG        ' Data sent by Main Program to LCD.
+
+' **************************************************************************************************************
+
+
+' Pin Mapping
+' LCD_BL      PIN   0
+' LCD_RS      PIN   1    
+' LCD_RW      PIN      X    ' LCD Read/Write - Connected directly to Ground because we are not reading from the LCD       
+' LCD_E       PIN   2   
+  
+' LCD_DB4     PIN   3  
+' LCD_DB5     PIN   4  
+' LCD_DB6     PIN   5  
+' LCD_DB7     PIN   6  
+
+' LCD_BUS     PIN   6.. 3 OUTPUT 	' !!! The Pins must be in MSB to LSB Order. 4-bit LCD Data Bus PIN Group
+
+
+LCD_INIT	   SUB 0		' Initialise the LCD in 4-BIT Mode
+LCD_CMD        SUB 1  		' Send Command Code to LCD
+LCD_BYTE       SUB 1  		' Write a Byte to the LCD
+LCD_STR        SUB 1, 2		' Write a String to the LCD
+LCD_DEC        SUB 2  		' Write a Number to the LCD - No Leading Spaces, No Leading Zeroes
+LCD_DECLZ      SUB 2  		' Write a Number to the LCD with Leading Zeroes
+LCD_DECLS      SUB 2  		' Write a Number to the LCD withLeading Spaces 
+LCD_Get_Digit  FUNC 2  		' Used by LCD_DEC, LCD_DECLZ and LCD_DECLZ 
+LCD_ON         SUB 0		' Turn LCD and Backlight ON
+LCD_OFF        SUB 0		' Turn LCD and Backlight OFF
+LCD_CLEAR      SUB 0     	' Clear LCD Screen
+
+
+' ----------------------------------------------------------------------
+'{$CODE}
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------------------------------------------------
+'{$IFUSED LCD_INIT}
+SUB LCD_INIT
+
+   LCD_OFF
+   
+' -- Initialise LCD -----------------------------------------------------
+   LOW LCD_E      ' Set LCD Enable to Initial LOW State
+   LOW LCD_RS     ' NB!!! Set LCD RS to Command mode
+   DELAY_MS 100      ' let the LCD settle
+  
+   LCD_BUS = %0011        ' 8-bit mode
+   PULSOUT LCD_E, 1
+   DELAY_MS 5
+   PULSOUT LCD_E, 1
+   DELAY_MS 2
+   PULSOUT LCD_E, 1
+   DELAY_MS 2
+   LCD_BUS = %0010        ' 4-Bit Mode, 1-line, 5x7 font %00100000
+   PULSOUT LCD_E, 1
+   DELAY_MS 2
+   LCD_CMD %00001100      ' on, no crsr, no Blink 
+   LCD_CMD %00000110      ' Set Entry Mode
+   
+   LCD_CLEAR
+   
+   LCD_ON
+   
+ENDSUB
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------------------------------------------------
+' __param1 is passed on to LCD_BYTE 
+'{$IFUSED LCD_CMD}
+SUB LCD_CMD 
+   LOW LCD_RS                   ' enter command mode
+   LCD_BYTE __param1
+ENDSUB
+'{$ENDIF}
+
+
+' ----------------------------------------------------------------------------------------------------------------
+' __param1 is the Byte to write.
+'{$IFUSED LCD_BYTE}
+SUB LCD_BYTE
+
+LCD_BYTE_DATA1    VAR   LONG
+LCD_BYTE_DATA2    VAR   LONG
+
+   LCD_BYTE_DATA1 = __param1
+
+   LCD_BYTE_DATA2 = LCD_BYTE_DATA1 >> 4    ' output high nibble
+   LCD_BUS = LCD_BYTE_DATA2
+   PULSOUT LCD_E, 1            
+   DELAY_MS 2     
+   LCD_BUS = LCD_BYTE_DATA1     ' output low nibble
+   PULSOUT LCD_E, 1            
+   DELAY_MS 2                    
+   HIGH LCD_RS                
+ENDSUB
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------------------------------------------------
+' __param1 is the STRING to write.
+' __param2 is an optional DATA terminator
+' For a DATA String, the DATA terminator can be either a Zero or "@".
+' It can also be a Literal String e.g. "My name is Fred" 
+'{$IFUSED LCD_STR}
+SUB LCD_STR
+
+LCD_STR_Index		VAR	LONG
+LCD_STR_Delimit	VAR	LONG
+
+
+   LCD_STR_Index = __param1
+	LCD_STR_Delimit = __param2
+	
+   DO
+      RDBYTE LCD_STR_Index, LCD_Data
+      IF __paramcnt = 1 THEN
+         IF LCD_Data = 0 THEN EXIT
+      ELSE
+         IF LCD_Data = LCD_STR_Delimit THEN EXIT
+      ENDIF
+      LCD_BYTE LCD_Data
+      INC LCD_STR_Index
+   LOOP
+ENDSUB
+'{$ENDIF}
+
+
+
+
+' ----------------------------------------------------------------------------------------------------------------
+' -- Write Digits without Leading Zeroes or Spaces -----------------
+' __param1 is the Number to write to the LCD
+' __param2 is the Number of Digits to write
+'{$IFUSED LCD_DEC}
+SUB LCD_DEC
+
+LCD_DEC_DATA      VAR   LONG
+LCD_DEC_NUMBER    VAR   LONG
+LCD_DEC_DIGITS    VAR   LONG
+LCD_DEC_COUNTER   VAR   LONG
+
+   LCD_DEC_NUMBER = __param1
+   LCD_DEC_DIGITS = __param2 - 1
+   __param4 = 0
+   
+   FOR LCD_DEC_COUNTER = LCD_DEC_DIGITS to 1 STEP -1 ' Process number of digits as per Dec_Size - 1, up to 2nd last digit     
+      LCD_DEC_DATA = LCD_Get_Digit LCD_DEC_NUMBER, LCD_DEC_COUNTER     
+      
+      IF LCD_DEC_DATA > 0 THEN   ' This is the First Non-Zero Digit
+         __param4 = 1          
+      ENDIF
+      
+      IF __param4 = 1 THEN    ' Don't strip zeroes after the First Non-Zero Digit 
+         LCD_DEC_DATA = LCD_DEC_DATA + $30       ' Add ASCII offset
+         LCD_BYTE LCD_DEC_DATA  
+      ENDIF
+	  ' -- ALWAYS Print the Last Character, otherwise a single zero is suppressed
+		LCD_DEC_DATA = LCD_Get_Digit LCD_DEC_NUMBER, 0  
+		LCD_DEC_DATA = LCD_DEC_DATA + $30       ' Add ASCII offset
+        LCD_BYTE LCD_DEC_DATA
+   NEXT
+ENDSUB
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------------------------------------------------
+' -- Write Digits with Leading Zeroes. -----------------
+' __param1 is the Number to write to the LCD
+' __param2 is the Number of Digits to write
+'{$IFUSED LCD_DECLZ}
+SUB LCD_DECLZ
+
+LCD_DECLZ_DATA      VAR   LONG
+LCD_DECLZ_NUMBER    VAR   LONG
+LCD_DECLZ_DIGITS    VAR   LONG
+LCD_DECLZ_COUNTER   VAR   LONG
+
+   LCD_DECLZ_NUMBER = __param1
+   LCD_DECLZ_DIGITS = __param2 - 1 
+   
+   FOR LCD_DECLZ_COUNTER = LCD_DECLZ_DIGITS to 0 STEP -1     
+      LCD_DECLZ_DATA = LCD_Get_Digit LCD_DECLZ_NUMBER, LCD_DECLZ_COUNTER    
+      LCD_DECLZ_DATA = LCD_DECLZ_DATA + $30    ' Add ASCII offset
+      LCD_BYTE LCD_DECLZ_DATA                        
+   NEXT
+ENDSUB
+'{$ENDIF}
+
+
+
+
+' ----------------------------------------------------------------------------------------------------------------
+' -- Write Digits with Leading Spaces -----------------
+' __param1 is the Number to write to the LCD
+' __param2 is the Number of Digits to write
+'{$IFUSED LCD_DECLS}
+SUB LCD_DECLS
+
+LCD_DECLS_DATA      VAR   LONG
+LCD_DECLS_NUMBER    VAR   LONG
+LCD_DECLS_DIGITS    VAR   LONG
+LCD_DECLS_COUNTER   VAR   LONG
+
+   LCD_DECLS_NUMBER = __param1
+   LCD_DECLS_DIGITS = __param2 - 1
+   __param4 = 0
+   
+   FOR LCD_DECLS_COUNTER = LCD_DECLS_DIGITS to 1 STEP -1 ' Process number of digits as per Dec_Size - 1, up to 2nd last digit      
+      LCD_DECLS_DATA = LCD_Get_Digit LCD_DECLS_NUMBER, LCD_DECLS_COUNTER     
+      
+      IF LCD_DECLS_DATA > 0 THEN   ' This is the First Non-Zero Digit
+         __param4 = 1           
+      ENDIF
+      
+      IF __param4 = 0 THEN    ' Add Leading Space
+         LCD_DECLS_DATA = " "
+         LCD_BYTE LCD_DECLS_DATA
+      ELSE  ' Don't strip zeroes after the First Non-Zero Digit  
+         LCD_DECLS_DATA = LCD_DECLS_DATA + $30      ' Add ASCII offset
+         LCD_BYTE LCD_DECLS_DATA  
+      ENDIF
+   NEXT
+   ' -- ALWAYS Print the Last Character, otherwise a single zero is suppressed
+	LCD_DEC_DATA = LCD_Get_Digit LCD_DEC_NUMBER, 0  
+	LCD_DEC_DATA = LCD_DEC_DATA + $30       ' Add ASCII offset
+	LCD_BYTE LCD_DEC_DATA
+ENDSUB
+'{$ENDIF}
+
+
+' ----------------------------------------------------------------------
+'{$IFUSED LCD_Get_Digit}
+FUNC LCD_Get_Digit
+   FOR __param3 = 0 to __param2
+      __param1 = __param1 / 10
+   NEXT   
+   RETURN __Remainder
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------------------------------------------------
+'{$IFUSED LCD_ON}
+SUB LCD_ON
+   LCD_Data = LcdOn1
+   LCD_CMD LCD_Data
+   HIGH LCD_BL
+ENDSUB
+'{$ENDIF}
+
+
+
+
+
+' ----------------------------------------------------------------------------------------------------------------
+'{$IFUSED LCD_OFF}
+SUB LCD_OFF
+   LCD_Data = LcdOff
+   LCD_CMD LCD_Data
+   LOW LCD_BL
+ENDSUB
+'{$ENDIF}
+
+
+
+
+' ----------------------------------------------------------------------
+'{$IFUSED LCD_CLEAR}
+SUB LCD_CLEAR
+   LCD_CMD LcdCls
+   DELAY_MS 5
+ENDSUB
+'{$ENDIF}
+
+
+
+
+
+

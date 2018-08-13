@@ -1,0 +1,38 @@
+' ======================================================================
+' Delays Library for PropBASIC
+' -- by Jon McPhalen
+' -- 21 MAY 2010
+' -- requires PropBASIC 0.98a or later
+' ======================================================================
+
+DELAY_MS        SUB     1                       ' shell for PAUSE
+DELAY_US        SUB     1                       ' shell for PAUSEUS
+
+
+' ----------------------------------------------------------------------
+'{$CODE}
+' ----------------------------------------------------------------------
+
+' Use: DELAY_MS duration
+' -- shell for PAUSE
+
+'{$IFUSED DELAY_MS}
+SUB DELAY_MS
+
+  PAUSE __param1
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: DELAY_US duration
+' -- shell for PAUSEUS
+
+'{$IFUSED DELAY_US}
+SUB DELAY_US
+
+  PAUSEUS __param1
+
+  ENDSUB
+'{$ENDIF}

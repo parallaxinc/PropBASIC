@@ -1,0 +1,88 @@
+' ----------------------------------------------------------------------
+' GLOBAL: Device Settings
+' ----------------------------------------------------------------------
+DEVICE          P8X32A, XTAL1, PLL16X
+XIN             5_000_000
+
+' ----------------------------------------------------------------------
+' GLOBAL: I/O Pins
+' ----------------------------------------------------------------------
+' TX_PIN     PIN   30 INPUT
+' RX_PIN     PIN   31 INPUT
+
+TerminalTX    PIN   30  ' If you going to use a PIN for an Absolute Pin Value assigment, the Pin Symbol CAN NOT have an "_" in it, 
+                        ' e.g. Terminal_TX DOES NOT work !!!!
+TerminalRX    PIN   31
+
+' ----------------------------------------------------------------------
+' GLOBAL: Constants
+' ----------------------------------------------------------------------
+' -- !!! You HAVE TO use Variables for the BAUD Rate/s
+Terminal_Baud   CON   115200
+
+
+' -- "TX_RX_Format_Lib_.pbas" Constants ---------------
+HOME        CON   1
+CR          CON   13
+CLS         CON   16  
+
+' ----------------------------------------------------------------------
+' GLOBAL: HUB Variables (Byte, Word, Long) - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' GLOBAL: DATA, WDATA, LDATA, FILE - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' COG 0: Variables (Long only)
+' ----------------------------------------------------------------------
+TX_BAUD   VAR   LONG
+RX_BAUD   VAR   LONG
+
+TX_PIN    VAR   LONG
+RX_PIN    VAR   LONG
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Definitions
+' ----------------------------------------------------------------------
+LOAD "D:\Propeller\Propeller Programs\Libraries\DELAYS_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\TX_RX_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\I2C_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\UTILS_LIB.pbas"
+
+
+' ----------------------------------------------------------------------
+' TASK Definitions
+' ----------------------------------------------------------------------
+
+Task1    TASK
+
+
+' ======================================================================
+  PROGRAM START
+' ======================================================================
+
+START:
+
+   TX_BAUD = Terminal_Baud
+   RX_BAUD = Terminal_Baud
+   
+   TX_PIN = #TerminalTX  ' If you use an Absolute Pin Value assigment like this, the Pin Symbol CAN NOT have an "_" in it, e.g. Terminal_TX DOES NOT work !!!!
+   RX_PIN = #TerminalRX
+   
+   DELAY_MS 5000
+   TX_BYTE CLS
+   
+
+
+END
+
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Code
+' ----------------------------------------------------------------------
+
+

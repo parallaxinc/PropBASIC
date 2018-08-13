@@ -1,0 +1,232 @@
+' ----------------------------------------------------------------------
+' Device Settings
+' ----------------------------------------------------------------------
+DEVICE          P8X32A, XTAL1, PLL16X
+XIN             5_000_000
+
+' ----------------------------------------------------------------------
+' GLOBAL: I/O Pins
+' ----------------------------------------------------------------------
+TX_PIN     PIN   30 INPUT
+
+
+' ----------------------------------------------------------------------
+' GLOBAL: Constants
+' ----------------------------------------------------------------------
+Terminal_Baud   CON   115200
+
+C0    CON   "A"
+C1    CON   "B"
+C2    CON   "C"
+C3    CON   "D"
+C4    CON   "E"
+
+
+N0    CON   10
+N1    CON   11
+N2    CON   12
+N3    CON   13
+N4    CON   14
+
+' ----------------------------------------------------------------------
+' GLOBAL: HUB Variables (Byte, Word, Long) - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' GLOBAL: DATA, WDATA, LDATA, FILE - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+Char0 DATA "[ABCDE]"
+
+Char1 DATA "[", C0, C1, C2, C3, C4, "]"
+
+Char2 DATA "[", 20, 30, 40, 50, 60 "]"
+
+Char3 DATA "[", N0, N1, N2, N3, N4, "]"
+
+txt0  DATA "LOOKDOWN Char  : ", 0
+
+txt1  DATA "LOOKDOWN Index : ", 0
+
+txt2  DATA "LOOKUP Index   : ", 0 
+
+txt3  DATA "LOOKUP Char    : ", 0
+
+
+' ----------------------------------------------------------------------
+' COG 0: Variables (Long only)
+' ----------------------------------------------------------------------
+TX_BAUD   VAR   LONG
+
+Key  VAR   Long
+
+Temp   VAR   LONG
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Definitions
+' ----------------------------------------------------------------------
+LOAD "D:\Propeller\Propeller Programs\Libraries\TX_RX_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\UTILS_LIB.pbas"
+
+
+' ----------------------------------------------------------------------
+' TASK Definitions
+' ----------------------------------------------------------------------
+
+
+' ======================================================================
+  PROGRAM START
+' ======================================================================
+       
+
+START:
+
+TX_BAUD = Terminal_Baud
+
+PAUSE 5000	' Allow time to open Serial Terminal
+
+SEROUT TX_PIN, T115200, 16
+
+Main:
+
+'***************************************************************************
+' !!! Remember that the Look_Down and Look_Up Indexing starts with Zero !!!
+'*************************************************************************** 
+
+
+' -- Test with Characters ---------------------------------------------------------------------------
+
+   TX_STR ">> Testing Characters --------------------------------------"
+   TX_BYTE 13
+   TX_BYTE 13
+
+   Key = "E" ' Find the Index of this Character 
+   
+   TX_STR txt0
+   TX_BYTE Key
+   TX_BYTE 13
+
+   Temp = Look_Down Char0, Key   ' This syntax also works: Temp = Look_Down Char0, "E" 
+   
+   TX_STR txt1
+   TX_DEC Temp
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   Key = 2   ' Find the Character of this Index
+   
+   TX_STR txt2
+   TX_DEC Key
+   TX_BYTE 13
+
+   Temp = Look_Up Char0, Key     ' This syntax also works: Temp = Look_Up Char0, 2
+   
+   TX_STR txt3
+   TX_BYTE Temp
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   TX_STR "--------------------------------------"
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   ' Now test with Character Constants ----------------------------------------
+
+   Key = "E" ' Find the Index of this Character 
+   
+   TX_STR txt0
+   TX_BYTE Key
+   TX_BYTE 13
+
+   Temp = Look_Down Char1, Key   
+   
+   TX_STR txt1
+   TX_DEC Temp
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   Key = 2   ' Find the Character of this Index
+   
+   TX_STR txt2
+   TX_DEC Key
+   TX_BYTE 13
+
+   Temp = Look_Up Char1, Key
+   
+   TX_STR txt3
+   TX_BYTE Temp
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   
+   
+' -- Test with Numbers ---------------------------------------------------------------------------
+
+   TX_STR ">> Testing Numbers --------------------------------------"
+   TX_BYTE 13
+   TX_BYTE 13
+
+   Key = 30 ' Find the Index of this Number 
+   
+   TX_STR txt0
+   TX_DEC Key
+   TX_BYTE 13
+
+   Temp = Look_Down Char2, Key   ' This syntax also works: Temp = Look_Down Char2, 30
+   
+   TX_STR txt1
+   TX_DEC Temp
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   Key = 2   ' Find the Character of this Index
+   
+   TX_STR txt2
+   TX_DEC Key
+   TX_BYTE 13
+
+   Temp = Look_Up Char2, Key     ' This syntax also works: Temp = Look_Up Char2, 2
+   
+   TX_STR txt3
+   TX_DEC Temp
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   TX_STR "--------------------------------------"
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   ' Now test with Number Constants ----------------------------------------
+
+   Key = 12 ' Find the Index of this Character 
+   
+   TX_STR txt0
+   TX_DEC Key
+   TX_BYTE 13
+
+   Temp = Look_Down Char3, Key   
+   
+   TX_STR txt1
+   TX_DEC Temp
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   Key = 3   ' Find the Character of this Index
+   
+   TX_STR txt2
+   TX_DEC Key
+   TX_BYTE 13
+
+   Temp = Look_Up Char3, Key
+   
+   TX_STR txt3
+   TX_DEC Temp
+
+END
+
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Code
+' ----------------------------------------------------------------------
+

@@ -1,0 +1,87 @@
+
+' LOADing separate SUBS and CODE files works in both the Main Program and in Tasks
+
+
+Wait_PEQ       SUB   2  ' Shell for WAITPEQ. Generates MASK and STATE from __param1 and __param2. Works for a Single Pin Only!
+Wait_PNE       SUB   2  ' Shell for WAITPNE. Generates MASK and STATE from __param1 and __param2. Works for a Single Pin Only!
+
+Transpose_Bits FUNC  3  ' Transpose a Specified Number of Bits, Starting from a Specified LOW Bit Position 
+
+Get_Digit      FUNC  2  ' Get a specified digit from a Variable
+
+DCD_Bit        FUNC  1  ' Set the Bit Number as specified by a Variable Value to "1". All the other Bits are "0". 
+                        ' The LSB is Bit number 0!. 
+                        ' This is the same as PBASIC "DCD"
+
+NCD_High       FUNC  1  ' The same principle as PBASIC "NCD": It finds the HIGHEST BIT whichis set to "1".
+                        ' !!!! In PBASIC the LSB = Bit 1, in this Routine the LSB = Bit 0 !!!!
+                        ' If No Bit is set, $FF (255) is Returned.
+NCD_Low        FUNC  1  ' The same principle as PBASIC "NCD", except it finds the LOWEST BIT which is set to "1".
+                        ' !!!! In PBASIC the LSB = Bit 1, in this Routine the LSB = Bit 0 !!!!
+                        ' If No Bit is set, $FF (255) is Returned.
+						
+Invert_Bit     FUNC  2  ' Invert the value of a Single Bit in a Variable. All other Bits are left as they are.
+Invert_Bits    FUNC  2  ' PropBasic also has "~", but the Function in this Library optionally clears the upper bits depending
+                        ' on __param2 so the Sign Bit can also be cleared. 
+                        ' The Number of Lower Bits to invert and not to clear is specified by __param2
+						
+Set_Bit        FUNC  2  ' Sets the specified Bit to "1". All other Bits are left as they are.
+Clear_Bit      FUNC  2  ' Sets the specified Bit to "0". All other Bits are left as they are.
+Put_Bit        FUNC  3  ' Sets the specified Bit to "1" or "0". All other Bits are left as they are.
+Copy_Bit       FUNC  4  ' Copy a specified Bit from one Variable into a Specified Bit of Another Variable.
+Get_Bit        FUNC  2  ' Get the value of a Specific Bit Number from a Variable. The value is returned in Bit 0!.
+
+Set_Nib        FUNC  2  ' Sets all the Bits of a Specified Nibble to "1". All other Bits are left as they are.
+Clear_Nib      FUNC  2  ' Sets all the Bits of a Specified Nibble to "0". All other Bits are left as they are.
+Put_Nib        FUNC  3  ' Put the Value of Nibble 0 of a Variable (or a literal) into a another (or the same) Variable in a
+                        ' specified Nibble position
+Copy_Nib       FUNC  4  ' Copy a specified Nibble from one Variable into a specified Nibble of Another Variable.
+Get_Nib        FUNC  2  ' Get a Nibble from a Specified Variable in a specified Nibble position. 
+                        ' The value is returned in Nibble 0!. 
+
+Set_Byte       FUNC  2  ' Sets all the Bits of a Specified Byte to "1". All other Bits are left as they are.
+Clear_Byte     FUNC  2  ' Sets all the Bits of a Specified Byte to "0". All other Bits are left as they are.
+Put_Byte       FUNC  3  ' Put the Value of Byte 0 of a Variable (or a literal) into a another (or the same) Variable in a
+                        ' specified Byte position
+Copy_Byte      FUNC  4  ' Copy a specified Byte from one Variable into a specified Byte of Another Variable.
+Get_Byte       FUNC  2  ' Get a Byte from a Specified Variable in a specified Byte position. The value is returned in Byte 0!.
+
+Set_Word       FUNC  2  ' Sets all the Bits of a Specified Word to "1". All other Bits are left as they are.
+Clear_Word     FUNC  2  ' Sets all the Bits of a Specified Word to "0". All other Bits are left as they are.
+Put_Word       FUNC  3  ' Put the Value of Word 0 of a Variable (or a literal) into a another (or the same) Variable in a
+                        ' specified Word position
+Copy_Word      FUNC  4  ' Copy a specified Word from one Variable into a specified Word of Another Variable.
+Get_Word       FUNC  2  ' Get a Word from a Specified Variable in a specified Word position. The value is returned in Word 0!.
+
+Look_Down      FUNC  2  ' The same as PBASIC LOOKDOWN
+Look_Up        FUNC  2  ' The same as PBASIC LOOKUP
+                     
+DEC2BCD        FUNC  1  ' Convert A Decimal Number to BCD
+' BCDtoDEC    FUNC  1   ' This a Function which I wrote but it uses 17 Longs MORE Program Space than BCD2DEC  
+BCD2DEC        FUNC  1  ' Convert a BCD Number to Decimal
+DEC2HEX        FUNC  1  ' Convert a Decimal Number to HEX
+
+Piezo          SUB   3  ' Used to Beep a Piezo Speaker In Single-Ended Mode. 
+                        ' This Subroutine uses a FOR..NEXT Delay and Quasi Frequency.
+                        ' The code is much shorter than Freq_Out.
+                        ' For an RS Piezo Speaker the working range = 100 to 170 with 133 and 137 being the loudest
+                        
+PiezoX         SUB   4  ' Used to Beep a Piezo Speaker In Differential Drive Mode. 
+                        ' This Subroutine uses a FOR..NEXT Delay and Quasi Frequency 
+                        ' The code is much shorter than Freq_OutX.
+                        ' For an RS Piezo Speaker the working range = 100 to 170 with 133 and 137 being the loudest
+
+Freq_Out       SUB   3  ' Used to Output a Square Wave Signal in Single_Ended Mode. 
+                        ' This Subroutine uses a Timed Delay and Actual Frequency.
+                        ' The code is much longer than Piezo.
+
+Freq_OutX      SUB   4  ' Used to Output a Square Wave Signal in Differential Drive Mode. 
+                        ' This Subroutine uses a Timed Delay and Actual Frequency
+                        ' The code is much longer than PiezoX.
+
+Pulse_Out      SUB   3  ' Pulse a Pin: HIGH Pin, PAUSEUS X, LOW Pin, PAUSEUS Y. 
+                        ' The HIGH and LOW Pauses are individually specified, giving you control of the Duty Cycle and Period
+
+Button         FUNC  3  ' Sets a LONG delay if a Switch is pressed and released, or a SHORT delay if a Switch is pressed and held.
+                        ' Buton Uses COUNTERB, so if your program is already using COUNTERB, you CAN NOT use Button
+                        

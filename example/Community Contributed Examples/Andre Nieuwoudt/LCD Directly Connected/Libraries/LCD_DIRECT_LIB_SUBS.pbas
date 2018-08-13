@@ -1,0 +1,36 @@
+
+' LOADing seperate SUBS and CODE files works in the Main Program as well as in Tasks
+
+ ' **************************************************************************************************************
+' NOTE: The Main Program MUST contain this Variable because it is used by this Library
+
+' LCD_Data          VAR   LONG        ' Data sent by Main Program to LCD.
+
+' **************************************************************************************************************
+
+
+' Pin Mapping
+' LCD_BL      PIN   0
+' LCD_RS      PIN   1    
+' LCD_RW      PIN      X    ' LCD Read/Write - Connected directly to Ground because we are not reading from the LCD       
+' LCD_E       PIN   2   
+  
+' LCD_DB4     PIN   3  
+' LCD_DB5     PIN   4  
+' LCD_DB6     PIN   5  
+' LCD_DB7     PIN   6  
+
+' LCD_BUS     PIN   6.. 3 OUTPUT 	' !!! The Pins must be in MSB to LSB Order. 4-bit LCD Data Bus PIN Group
+
+
+LCD_INIT	   	SUB	0		' Initialise the LCD in 4-BIT Mode
+LCD_CMD        	SUB 1  		' Send Command Code to LCD
+LCD_BYTE       	SUB 1  		' Write a Byte to the LCD
+LCD_STR        	SUB 1, 2	' Write a String to the LCD
+LCD_DEC        	SUB 2  		' Write a Number to the LCD - No Leading Spaces, No Leading Zeroes
+LCD_DECLZ      	SUB 2  		' Write a Number to the LCD with Leading Zeroes
+LCD_DECLS      	SUB 2  		' Write a Number to the LCD withLeading Spaces 
+LCD_Get_Digit  	FUNC 2  	' Used by LCD_DEC, LCD_DECLZ and LCD_DECLZ 
+LCD_ON      	SUB 0		' Turn LCD and Backlight ON
+LCD_OFF     	SUB 0		' Turn LCD and Backlight OFF
+LCD_CLEAR      	SUB 0     	' Clear LCD Screen

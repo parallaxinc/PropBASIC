@@ -1,0 +1,16 @@
+
+' LOADing seperate SUBS and CODE files works in the Main Program as well as in Tasks
+
+'***********************************************************************************************************************
+'
+'
+'***********************************************************************************************************************
+
+I2C_In         FUNC     1   ' If _param1 = 1 then Read 1 Byte. If _param1 = 2 then Read 2 Bytes (Word). 
+I2C_Out        SUB      2   ' __param1 = Data to Write. If _param2 = 1 then Write 1 Byte. If _param2 = 2 then Write 2 Bytes (Word). 
+
+I2C_START      SUB      0             
+I2C_READ       FUNC     1
+I2C_WRITE      SUB      1
+I2C_STOP       SUB      0
+I2C_ADDRESS    SUB      0

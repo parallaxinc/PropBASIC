@@ -1,0 +1,141 @@
+
+
+'***********************************************************************************************************************
+'
+'
+'***********************************************************************************************************************
+
+I2C_In         FUNC     1   ' If _param1 = 1 then Read 1 Byte. If _param1 = 2 then Read 2 Bytes (Word). 
+I2C_Out        SUB      2   ' __param1 = Data to Write. If _param2 = 1 then Write 1 Byte. If _param2 = 2 then Write 2 Bytes (Word). 
+
+I2C_START      SUB      0             
+I2C_READ       FUNC     1
+I2C_WRITE      SUB      1
+I2C_STOP       SUB      0
+I2C_ADDRESS    SUB      0
+
+' ----------------------------------------------------------------------
+'{$CODE}
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' If _param1 = 1 then Read 1 Byte. 
+' If _param1 = 2 then Read 2 Bytes (Word).
+'{$IFUSED I2C_In}
+FUNC I2C_In 
+
+RdByteCnt     VAR   __param4
+
+RdByteCnt = __param1
+   
+   IF Address_Len > 0 THEN
+      I2C_START
+      I2C_WRITE Control_Byte  ' Send Control Byte - Write 
+      I2C_ADDRESS 
+   ENDIF
+   
+   I2C_START
+   
+   __param2 = Control_Byte OR 1  ' Send Control Byte - Read
+   I2C_WRITE __param2   
+   
+   IF RdByteCnt = 1 THEN  ' Read a Single Byte
+      __param1 = I2C_READ 1    ' NAK
+   ELSE  ' Read a WORD
+      __param1 = I2C_READ 0  ' ACK. Read the HighByte
+      __param4 = __param1 << 8
+      __param1 = I2C_READ 1    ' NAK. Read the LowByte
+      __param1 = __param1 OR __param4
+   ENDIF
+
+   
+   I2C_STOP
+   
+   RETURN __param1 
+   
+ENDFUNC
+'{$ENDIF}
+
+
+
+
+' ----------------------------------------------------------------------
+' __param1 = Data to Write. 
+' If _param2 = 1 then Write 1 Byte. 
+' If _param2 = 2 then Write 2 Bytes (Word).
+
+'{$IFUSED I2C_Out}
+SUB I2C_Out
+WrData      VAR   __param3
+WrByteCnt   VAR   __param4
+
+WrData = __param1
+WrByteCnt = __param2
+
+   I2C_START
+   I2C_WRITE Control_Byte  ' Send Control Byte - Write
+   
+   IF Address_Len > 0 THEN 
+      I2C_ADDRESS   
+   ENDIF
+   
+   IF WrByteCnt = 2 THEN
+      __param4 = WrData >> 8 ' Write the HIGHBYTE
+      I2C_WRITE __param4
+   ENDIF
+   I2C_WRITE WrData  ' Write the LOWBYTE
+   
+   I2C_STOP  
+   
+ENDSUB
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+'{$IFUSED I2C_ADDRESS}
+SUB I2C_ADDRESS                    
+   IF Address_Len = 2 THEN 
+      __param2 = Register_Address >> 8 ' Send Register Address HIGHBYTE
+      I2C_WRITE __param2
+   ENDIF           
+   I2C_WRITE Register_Address    ' Send Register Address LOWBYTE     
+ENDSUB
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+'{$IFUSED I2C_START}
+SUB I2C_START
+   I2CSTART I2C_SDA, I2C_SCL
+ENDSUB
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+'{$IFUSED I2C_READ}
+FUNC I2C_READ 
+   I2CREAD I2C_SDA, I2C_SCL, __param2, __param1
+   RETURN __param2   
+ENDFUNC
+'{$ENDIF}
+
+
+' ----------------------------------------------------------------------
+'{$IFUSED I2C_WRITE}
+SUB I2C_WRITE
+   I2CWRITE I2C_SDA, I2C_SCL, __param1
+ENDSUB
+'{$ENDIF}
+
+
+' ----------------------------------------------------------------------
+'{$IFUSED I2C_STOP}
+SUB I2C_STOP
+   I2CSTOP I2C_SDA, I2C_SCL
+ENDSUB
+'{$ENDIF}
+

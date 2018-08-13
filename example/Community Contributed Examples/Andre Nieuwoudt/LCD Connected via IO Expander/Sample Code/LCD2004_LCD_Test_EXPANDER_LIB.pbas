@@ -1,0 +1,243 @@
+
+DEVICE          P8X32A, XTAL1, PLL16X
+XIN             5_000_000
+
+
+'****************************************************************************************************************************
+' 1) If the LCD2004 Module is Powered from 5V, place 1k Resistors in line with the LCD2204 and Propeller SDA & SCL Pins.
+' 2) Alternatively, Power the LCD2004 Module from 3.3V and connect SDA & SCL directly to the Propeller. Then connect
+'   the LCD +5V and Backlight Anode Pins to +5V.
+'****************************************************************************************************************************
+
+
+' ----------------------------------------------------------------------
+' I/O Pins
+' ----------------------------------------------------------------------
+
+I2C_SCL     PIN   28 INPUT 
+I2C_SDA     PIN   29 INPUT 
+
+' ----------------------------------------------------------------------
+' Constants
+' ----------------------------------------------------------------------
+
+' -----[ LCD Command Codes ]-------------------------------------------------------
+LcdOn1    CON   $0C  ' Display On, Cursor Off, Blink Off
+LcdOn2    CON   $0D  ' Display On, Cursor Off, Blink On
+LcdOn3    CON   $0E  ' Display On, Cursor On, Blink Off
+LcdOn4    CON   $0F  ' Display On, Cursor On, Blink On
+LcdOff    CON   $08  ' Display Off
+LcdCls    CON   $01  ' Clear Display
+LcdHome   CON   $02  ' Return Home
+LcdCrsrL  CON   $10  ' Cursor Left
+LcdCrsrR  CON   $1C  ' Cursor Right
+LcdDispL  CON   $18  ' Shift Display Left
+LcdDispR  CON   $1C  ' Shift Display Right
+LcdLine1  CON   $80  ' LCD Line 1
+LcdLine2  CON   $C0  ' LCD Line 2
+LcdLine3  CON   $94  ' LCD Line 3
+LcdLine4  CON   $D4  ' LCD Line 4
+LcdDDRam  CON   $80  ' Display Data RAM control
+LcdCGRam  CON   $40  ' Custom Character RAM
+
+
+' LCD PIN Mapping to LCD_BUS_Data Bits
+' !!! NOTE: The Backlight is on PIN 3 !!!!!
+LCD_RS	CON	0
+LCD_RW	CON	1
+LCD_E		CON	2
+LCD_BL	CON 	3
+LCD_D4   CON   4
+LCD_D5   CON   5
+LCD_D6   CON   6
+LCD_D7   CON   7
+
+
+Wr_LCD2004       CON     %01001110    ' Device Address = %111
+
+
+
+' ----------------------------------------------------------------------
+' Shared (hub) Variables (Byte, Word, Long)
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' Shared (hub) Data (DATA, WDATA, LDATA, FILE)
+' ----------------------------------------------------------------------
+Msg1 DATA "Testing Line 001", 0
+Msg2 DATA "Testing Line 2", "@"
+Msg3 DATA "Testing STR "
+Msg3_Value DATA "1234", 0
+
+uChar0   DATA $11,$1B,$15,$11,$11,$11,$00,$1F   ' Underlined "M"
+uChar1   DATA $1F,$04,$04,$04,$04,$04,$00,$1F   ' Underlined "T"
+uChar2   DATA $11,$11,$11,$15,$15,$0A,$00,$1F   ' Underlined "W"
+uChar3   DATA $1F,$04,$04,$04,$04,$04,$00,$1F   ' Underlined "T"
+uChar4   DATA $1F,$10,$1E,$10,$10,$10,$00,$1F   ' Underlined "F"
+uChar5   DATA $0F,$10,$0E,$01,$01,$1E,$00,$1F   ' Underlined "S"
+uChar6   DATA $0E,$15,$15,$17,$11,$0E,$00,$00   ' Clock Icon
+uChar7   DATA $0E,$15,$17,$11,$0E,$00,$00,$00   ' Clock Icon
+         DATA  "@"
+
+
+' ----------------------------------------------------------------------
+' Cog Variables (Long only)
+' ----------------------------------------------------------------------
+' ***********************************************************
+' These Variables are HARDCODED in I2C_LIB.pbas
+Register_Address  VAR   LONG
+Address_Len       VAR   LONG
+Control_Byte      VAR   LONG
+' ***********************************************************
+
+Index1      VAR   LONG    
+Index2      VAR   LONG 
+Temp        VAR   LONG
+
+LCD_Data    VAR   LONG   ' Data Sent to the LCD
+
+LCD_BUS_Data   VAR   LONG  ' Used Internally by the CLD SUBs
+
+
+' ----------------------------------------------------------------------
+' SUB & FUNC Definitions
+' ----------------------------------------------------------------------
+LOAD "D:\Propeller\Propeller Programs\LIBRARIES\LCD_EXPANDER_LIB.pbas"  ' Must be First
+LOAD "D:\Propeller\Propeller Programs\Libraries\DELAYS_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\I2C_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\UTILS_LIB.pbas"
+
+WRITE_LCD   SUB   1
+
+
+' ----------------------------------------------------------------------
+' TASK Definitions
+' ----------------------------------------------------------------------
+
+
+' ======================================================================
+  PROGRAM START LMM
+' ======================================================================
+
+START:
+
+
+' -----[ Initialization ]--------------------------------------------------
+Register_Address = 0
+Control_Byte = Wr_LCD2004
+Address_Len = 0   ' The LCD2004 does not have an Address Register 
+
+   I2CSPEED 2  ' Larger then 7 does not always work. I2CSPEED > 2 DOES NOT WORK in LMM Mode !!!!!!
+
+   LCD_BUS_Data = 0
+   
+   DELAY_MS 100   ' Give LCD Time to Initialise
+
+   LCD_INIT
+    
+
+' Load Custom Characters to CGRAM
+   LCD_CMD LcdCGRam  ' CG RAM Address Increments Automatically
+
+' One Way of dong it
+   ' Index1 = 0
+   ' DO
+      ' RDBYTE uChar0(Index1), LCD_Data       
+      ' IF LCD_Data = "@" THEN EXIT    
+      ' LCD_BYTE LCD_Data              
+      ' INC Index1              
+   ' LOOP
+
+
+' Another Way of dong it. Very long winded and use THREE Variables
+   ' Index1 = GETADDR uChar0
+   ' Index2 = GETADDR uChar7
+   ' Index2 = Index2 + 7
+   ' FOR Temp = Index1 TO Index2 ' build 8 custom chars
+      ' RDBYTE Temp, LCD_Data
+      ' LCD_BYTE LCD_Data
+   ' NEXT
+   
+   
+' Yet Another Way of dong it
+   FOR Index1 = 0 to 63 ' 8 DATA Lines * 8 Bytes each = 64 Bytes
+      RDBYTE uChar0(Index1), LCD_Data          
+      LCD_BYTE LCD_Data                           
+   NEXT   
+
+   
+
+Main:
+  
+   LCD_CLEAR
+
+
+   ' -- Write MSG Lines --------------------------------
+   LCD_CMD LcdLine1
+   LCD_STR Msg1
+
+   LCD_CMD LcdLine2
+   LCD_STR Msg2, "@" 
+   
+   DELAY_MS 2000
+
+
+   ' -- Write Numbers --------------------------------   
+   LCD_CLEAR   
+   LCD_CMD LcdLine1
+   LCD_STR "Leading Zeroes:"  
+   LCD_CMD LcdLine2
+   LCD_DECLZ 1234, 6
+   
+   DELAY_MS 2000
+   
+   LCD_CLEAR   
+   LCD_CMD LcdLine1
+   LCD_STR "Leading Spaces:"  
+   LCD_CMD LcdLine2
+   LCD_DECLS 1234, 6
+   
+   DELAY_MS 2000
+   
+   LCD_CLEAR   
+   LCD_CMD LcdLine1
+   LCD_STR "Leading Nothing:"  
+   LCD_CMD LcdLine2
+   LCD_DEC 1234, 6
+   
+   DELAY_MS 2000
+   
+ 
+   ' -- Write Custom Characters -------------------------------- 
+   LCD_CLEAR
+   LCD_CMD LcdLine1
+   LCD_STR "Custom Characters:" 
+   LCD_CMD LcdLine2
+   FOR Index1 = 0 to 7
+      LCD_BYTE Index1
+   NEXT
+   
+   DELAY_MS 3000
+   
+   GOTO Main
+
+
+END
+
+
+' ----------------------------------------------------------------------
+' SUB & FUNC Code
+' ----------------------------------------------------------------------
+
+SUB WRITE_LCD
+   I2C_Out __param1, 1
+ENDSUB
+
+
+
+
+' ======================================================================
+' TASK Code
+' ======================================================================
+

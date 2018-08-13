@@ -1,0 +1,1026 @@
+
+Wait_PEQ       SUB   2  ' Shell for WAITPEQ. Generates MASK and STATE from __param1 and __param2. Works for a Single Pin Only!
+Wait_PNE       SUB   2  ' Shell for WAITPNE. Generates MASK and STATE from __param1 and __param2. Works for a Single Pin Only!
+
+Transpose_Bits FUNC  3  ' Transpose a Specified Number of Bits, Starting from a Specified LOW Bit Position 
+
+Get_Digit      FUNC  2  ' Get a specified digit from a Variable
+
+DCD_Bit        FUNC  1  ' Set the Bit Number as specified by a Variable Value to "1". All the other Bits are "0". 
+                        ' The LSB is Bit number 0!. 
+                        ' This is the same as PBASIC "DCD"
+
+NCD_High       FUNC  1  ' The same principle as PBASIC "NCD": It finds the HIGHEST BIT which is set to "1".
+                        ' !!!! In PBASIC the LSB = Bit 1, in this Routine the LSB = Bit 0 !!!!
+                        ' If No Bit is set, $FF (255) is Returned.
+NCD_Low        FUNC  1  ' The same principle as PBASIC "NCD", except it finds the LOWEST BIT which is set to "1".
+                        ' !!!! In PBASIC the LSB = Bit 1, in this Routine the LSB = Bit 0 !!!!
+                        ' If No Bit is set, $FF (255) is Returned.
+
+Invert_Bit     FUNC  2  ' Invert the value of a Single Bit in a Variable. All other Bits are left as they are.
+Invert_Bits    FUNC  2  ' PropBasic also has "~", but the Function in this Library optionally clears the upper bits depending
+                        ' on __param2 so the Sign Bit can also be cleared. 
+                        ' The Number of Lower Bits to invert and not to clear is specified by __param2
+						
+Set_Bit        FUNC  2  ' Sets the specified Bit to "1". All other Bits are left as they are.
+Clear_Bit      FUNC  2  ' Sets the specified Bit to "0". All other Bits are left as they are.
+Put_Bit        FUNC  3  ' Sets the specified Bit to "1" or "0". All other Bits are left as they are.
+Copy_Bit       FUNC  4  ' Copy a specified Bit from one Variable into a Specified Bit of Another Variable.
+Get_Bit        FUNC  2  ' Get the value of a Specific Bit Number from a Variable. The value is returned in Bit 0!.
+
+Set_Nib        FUNC  2  ' Sets all the Bits of a Specified Nibble to "1". All other Bits are left as they are.
+Clear_Nib      FUNC  2  ' Sets all the Bits of a Specified Nibble to "0". All other Bits are left as they are.
+Put_Nib        FUNC  3  ' Put the Value of Nibble 0 of a Variable (or a literal) into a another (or the same) Variable in a
+                        ' specified Nibble position
+Copy_Nib       FUNC  4  ' Copy a specified Nibble from one Variable into a specified Nibble of Another Variable.
+Get_Nib        FUNC  2  ' Get a Nibble from a Specified Variable in a specified Nibble position. 
+                        ' The value is returned in Nibble 0!. 
+
+Set_Byte       FUNC  2  ' Sets all the Bits of a Specified Byte to "1". All other Bits are left as they are.
+Clear_Byte     FUNC  2  ' Sets all the Bits of a Specified Byte to "0". All other Bits are left as they are.
+Put_Byte       FUNC  3  ' Put the Value of Byte 0 of a Variable (or a literal) into a another (or the same) Variable in a
+                        ' specified Byte position
+Copy_Byte      FUNC  4  ' Copy a specified Byte from one Variable into a specified Byte of Another Variable.
+Get_Byte       FUNC  2  ' Get a Byte from a Specified Variable in a specified Byte position. The value is returned in Byte 0!.
+
+Set_Word       FUNC  2  ' Sets all the Bits of a Specified Word to "1". All other Bits are left as they are.
+Clear_Word     FUNC  2  ' Sets all the Bits of a Specified Word to "0". All other Bits are left as they are.
+Put_Word       FUNC  3  ' Put the Value of Word 0 of a Variable (or a literal) into a another (or the same) Variable in a
+                        ' specified Word position
+Copy_Word      FUNC  4  ' Copy a specified Word from one Variable into a specified Word of Another Variable.
+Get_Word       FUNC  2  ' Get a Word from a Specified Variable in a specified Word position. The value is returned in Word 0!.
+
+Look_Down      FUNC  2  ' The same as PBASIC LOOKDOWN 
+Look_Up        FUNC  2  ' The same as PBASIC LOOKUP
+                     
+DEC2BCD        FUNC  1  ' Convert A Decimal Number to BCD
+' BCDtoDEC    FUNC  1   ' This a Function which I wrote but it uses 17 Longs MORE Program Space than BCD2DEC  
+BCD2DEC        FUNC  1  ' Convert a BCD Number to Decimal
+DEC2HEX        FUNC  1  ' Convert a Decimal Number to HEX
+
+Piezo          SUB   3  ' Used to Beep a Piezo Speaker In Single-Ended Mode. 
+                        ' This Subroutine uses a FOR..NEXT Delay and Quasi Frequency.
+                        ' The code is much shorter than Freq_Out.
+                        ' For an RS Piezo Speaker the working range = 100(~4.96 kHz) to 170(~2.93 kHz)
+						' with 133 and 137 being the loudest
+                        
+PiezoX         SUB   4  ' Used to Beep a Piezo Speaker In Differential Drive Mode. 
+                        ' This Subroutine uses a FOR..NEXT Delay and Quasi Frequency 
+                        ' The code is much shorter than Freq_OutX.
+                        ' For an RS Piezo Speaker the working range = 100 to 170 with 133 and 137 being the loudest
+
+Freq_Out       SUB   3  ' Used to Output a Square Wave Signal in Single_Ended Mode. 
+                        ' This Subroutine uses a Timed Delay and Actual Frequency.
+                        ' The code is much longer than Piezo.
+
+Freq_OutX      SUB   4  ' Used to Output a Square Wave Signal in Differential Drive Mode. 
+                        ' This Subroutine uses a Timed Delay and Actual Frequency
+                        ' The code is much longer than PiezoX.
+
+Pulse_Out      SUB   3  ' Pulse a Pin: HIGH Pin, PAUSEUS X, LOW Pin, PAUSEUS Y. 
+                        ' The HIGH and LOW Pauses are individually specified, giving you control of the Duty Cycle and Period
+
+Button         FUNC  3  ' Sets a LONG delay if a Switch is pressed and released, or a SHORT delay if a Switch is pressed and held.
+                        ' Buton Uses COUNTERB, so if your program is already using COUNTERB, you CAN NOT use Button
+
+
+' ----------------------------------------------------------------------
+'{$CODE}
+' ----------------------------------------------------------------------
+
+
+
+' ----------------------------------------------------------------------
+' __param1 is the PIN which to Check the STATE of
+' __param2 is the Desired STATE of the __param1 Pin to WAIT for
+'{$IFUSED Wait_PEQ}
+SUB Wait_PEQ
+   ' Generate the PIN Mask
+   __param3 = 1
+   __param3 = __param3 << __param1    
+   ' Generate the STATE Mask   
+   __param2 = __param2 << __param1   
+   WAITPEQ __param2, __param3    '  WAITPEQ State, Mask      
+ENDSUB
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' __param1 is the PIN which to Check the STATE of
+' __param2 is the Desired STATE of the __param1 PIN to WAIT for
+'{$IFUSED Wait_PNE}
+SUB Wait_PNE
+   ' Generate the PIN Mask
+   __param3 = 1
+   __param3 = __param3 << __param1    
+   ' Generate the STATE Mask   
+   __param2 = __param2 << __param1   
+   WAITPNE __param2, __param3    '  WAITPNE State, Mask      
+ENDSUB
+'{$ENDIF}
+
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: Temp = Transpose_Bits Temp,0, 8
+' __param1 is the Variable in which to Transpose Bits
+' __param2 is LOW Bit position to start Transposing From
+' __param3 is how many Bits to Transpose
+'{$IFUSED Transpose_Bits}
+FUNC Transpose_Bits 
+
+Transpose_Bits_Var     VAR   LONG
+Transpose_Bits_Pos     VAR   LONG
+Transpose_Bits_Count   VAR   LONG
+Transpose_Bits_New     VAR   LONG
+Transpose_Bits_Loop    VAR   LONG
+
+
+   Transpose_Bits_Var = __param1
+   Transpose_Bits_Pos = __param2
+   Transpose_Bits_Count = __param3 
+   Transpose_Bits_New = 0
+   
+   Transpose_Bits_Count = Transpose_Bits_Count - 1  ' Minus 1 because we count from Zero
+   
+   Transpose_Bits_Count = Transpose_Bits_Count + Transpose_Bits_Pos  ' Set the Loop End Position 
+   
+   FOR Transpose_Bits_Loop = Transpose_Bits_Pos to Transpose_Bits_Count 
+      
+      __param4 = Transpose_Bits_Count - Transpose_Bits_Loop  ' Get the Bit Position to Copy the Bit To
+      
+      Transpose_Bits_New = Copy_Bit Transpose_Bits_Var, Transpose_Bits_Loop, Transpose_Bits_New, __param4
+      
+      Transpose_Bits_Var = Clear_Bit Transpose_Bits_Var, Transpose_Bits_Loop  ' Clear the Bit because later we OR
+   
+   NEXT
+   
+   Transpose_Bits_New = Transpose_Bits_New << Transpose_Bits_Pos  ' Shift the Swapped Bits into the Correct Position
+   Transpose_Bits_New = Transpose_Bits_New OR Transpose_Bits_Var  ' Restore the other Bits
+   
+   RETURN Transpose_Bits_New
+
+ENDFUNC
+'{$ENDIF}
+
+
+
+
+
+' ----------------------------------------------------------------------
+' __param1 is the Variable to get the Digit From
+' __param2 is the position of the Digit which to Get
+' The First Digit is position 0
+'{$IFUSED Get_Digit}
+FUNC Get_Digit
+   FOR __param3 = 0 to __param2
+      __param1 = __param1 / 10
+   NEXT   
+   RETURN __Remainder
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' -- Set the Bit Number as specified by a Variable Value to "1"
+' -- All the other Bits are "0"
+' -- Same as PBASIC "DCD"
+' -- The LSB is Bit 0
+'{$IFUSED DCD_Bit}
+FUNC DCD_Bit
+   __param2 = 1   ' Set Bit 0
+   __param2 = __param2 << __param1  ' Shift the Bit into the right place
+   RETURN __param2
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' -- Invert the value of a Single Bit in a Variable. 
+' -- __param1 is the Variable in which to Invert the Bit
+' -- __param2 is the number of the Bit which to Invert
+' -- The First Bit is Bit 0
+'{$IFUSED Invert_Bit}
+FUNC Invert_Bit
+
+   ' Get the value of the bit which has to be Inverted
+   __param3 = 1   ' Set Bit 0
+   __param3 = __param3 << __param2  ' Shift the Bit into the right place
+   __param4 = __param3  ' Store the Bit Mask
+   __param3 = __param3 AND __param1
+   __param3 = __param3 >> __param2  ' Shift the Bit into the LSB position
+   
+   ' Now Invert the Bit
+   IF __param3 = 1 THEN ' Change the Bit to 0
+      __param4 = ~__param4
+      __param3 = __param4 AND __param1
+   ELSE  ' Change the Bit to 1
+      __param3 = __param4 OR __param1
+   ENDIF  
+
+   RETURN __param3
+ENDFUNC
+'{$ENDIF}
+
+
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' -- Invert the Bits of a Variable (__param1)
+' -- Retain the number of Inverted Lower Bits (LSB) as specified by __param2 (Clear all the Bits above __param2)
+'{$IFUSED Invert_Bits}
+FUNC Invert_Bits 
+' Invert the Bits, but Bit 31, the Sign Bit, is now Set
+   __param1 = ~__param1
+' Now generate a Bit Mask for the number of Bits specified by __param2
+   DEC __param2
+   __param3 = 2
+   FOR __param4 = 1 to __param2
+      __param3 = __param3 * 2
+   NEXT
+   DEC __param3
+' AND the Inverted Bits with the generated Bit Mask to clear the Upper Bits
+   __param1 = __param1 AND __param3
+   
+   RETURN __param1
+ENDFUNC
+'{$ENDIF}
+
+
+
+
+
+
+
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable of which to Set the Bit
+' __param2 is the number of the Bit which to set to "1"
+' The First Bit is Bit 0
+'{$IFUSED Set_Bit}
+FUNC Set_Bit
+   __param4 = 1   ' Set Bit 0 to 1
+   __param4 = __param4 << __param2  ' Shift the Bit into the right place      
+   __param1 = __param1 OR __param4  ' Restore the previous Bits
+   RETURN __param1
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable of which to Set the Bit
+' __param2 is the number of the Bit which to set to "0"
+' The First Bit is Bit 0
+'{$IFUSED Clear_Bit}
+FUNC Clear_Bit
+   __param4 = 1   ' Set Bit 0 to 1
+   __param4 = __param4 << __param2  ' Shift the Bit into the right place      
+   __param4 = ~__param4 ' Change the Bit to "0"
+   __param1 = __param1 AND __param4  ' Restore the previous Bits
+   RETURN __param1
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the value of the Bit which to Put, i.e. "1" or "0"
+' __param2 is the Variable INTO which to Put the Bit
+' __param3 is the number of the Bit in which to Put the data
+' The First Bit is Bit 0
+'{$IFUSED Put_Bit}
+FUNC Put_Bit
+   __param4 = 1   ' Set Bit 0 to 1
+   __param4 = __param4 << __param3  ' Shift the Bit into the right place      
+   IF __param1 = 0 THEN ' Set the specified Bit to "0"
+      __param4 = ~__param4 ' Change the Bit to "0"
+      __param2 = __param2 AND __param4  ' Restore the previous Bits
+   ELSE
+      __param2 = __param2 OR __param4  ' Restore the previous Bits
+   ENDIF
+   RETURN __param2
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable to Copy From
+' __param2 is the Number of the Bit which to Copy
+' __param3 is the Variable INTO which to Copy the Bit
+' __param4 is the number of the Bit into which to Copy
+' The First Bit is Bit 0
+'{$IFUSED Copy_Bit}
+FUNC Copy_Bit
+   __param1 = __param1 >> __param2
+   __param1 = __param1 AND %1  ' Isolate the Low Bit  
+   __param1 = __param1 << __param4  ' Shift the Bit into the right place      
+
+   ' Set the Bit Mask to clear the relevant Bit  
+   __param2 = %1    ' Set Bit 0 to 1 
+   __param2 = __param2 << __param4  ' Put the Bit in the right place
+   __param2 = ~__param2    ' Invert the bits to get the relevant Bit as zero 
+   ' Now Put the data 
+   __param3 = __param3 AND __param2 ' First Clear the relevant Bit
+   __param3 = __param3 OR __param1 ' Add the relevant Bit
+   
+   RETURN __param3
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' -- Get the value of a Specific Bit Number from a Variable. The value of the Bit is returned in Bit number 0!.
+' -- __param1 is the Variable to get the Bit Value from
+' -- __param2 is the number of the Bit to get the Value of
+'{$IFUSED Get_Bit}
+FUNC Get_Bit
+   __param3 = 1   ' Set Bit 0
+   __param3 = __param3 << __param2  ' Shift the Bit into the right place
+   __param3 = __param3 AND __param1
+   __param3 = __param3 >> __param2  ' Shift the Bit into the LSB position
+   RETURN __param3
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable OF which to set the Specifie Nibble to all "1"s
+' __param2 is the number of the Nibble which to set to all "1"s
+' The First Nibble is Nibble 0
+'{$IFUSED Set_Nib}
+FUNC Set_Nib    
+   __param4 = $0F    ' Set Nibble 0 to all 1s
+   __param3 = __param2 * 4
+   __param4 = __param4 << __param3  ' Put the Nibble in the right place
+   __param1 = __param1 OR __param4 ' Add the relevant Nibble
+   RETURN __param1  
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable OF which to set the Specifie Nibble to all "0"s
+' __param2 is the number of the Nibble which to set to all "0"s
+' The First Nibble is Nibble 0
+'{$IFUSED Clear_Nib}
+FUNC Clear_Nib    
+   __param4 = $0F    ' Set Nibble 0 to all 1s
+   __param3 = __param2 * 4
+   __param4 = __param4 << __param3  ' Put the Nibble in the right place
+   __param4 = ~__param4 ' Change the Bits to "0"
+   __param1 = __param1 AND __param4 ' Add the relevant Nibble
+   RETURN __param1  
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable OF which to Put the Nibble Value (The Low Nibble of a Variable is used). __param1 can be a Literal, e.g. 7 or %0111
+' __param2 is the Variable INTO which to Put the Nibble
+' __param3 is the number of the Nibble in which to Put the data
+' The First Nibble is Nibble 0
+'{$IFUSED Put_Nib}
+FUNC Put_Nib   
+   __param1 = __param1 AND $0F ' Isolate the Low Nibble  
+   __param3 = __param3 * 4
+   __param1 = __param1 << __param3      ' Put the Nibble in the right place 
+   ' Set the Bit Mask to clear the relevant Nibble  
+   __param4 = $0F    ' Set Nibble 0 to all 1s 
+   __param4 = __param4 << __param3  ' Put the Nibble in the right place
+   __param4 = ~__param4    ' Invert the bits to get the relevant Nibble as all zeroes   
+   ' Now Put the data 
+   __param2 = __param2 AND __param4 ' First Clear the relevant Nibble
+   __param2 = __param2 OR __param1 ' Add the relevant Nibble
+   RETURN __param2   
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable to Copy From
+' __param2 is the Number of the Nibble which to Copy
+' __param3 is the Variable INTO which to Copy the Nibble
+' __param4 is the number of the Nibble into which to Copy
+' The First Nibble is Nibble 0
+'{$IFUSED Copy_Nib}
+FUNC Copy_Nib
+   __param2 = __param2 * 4
+   __param1 = __param1 >> __param2
+   __param1 = __param1 AND $0F ' Isolate the Low Nibble 
+   __param4 = __param4 * 4
+   __param1 = __param1 << __param4  ' Shift the Nibble into the right place      
+
+   ' Set the Bit Mask to clear the relevant Nibble  
+   __param2 = $0F    ' Set Nibble 0 to all 1s 
+   __param2 = __param2 << __param4  ' Put the Nibble in the right place
+   __param2 = ~__param2    ' Invert the bits to get the relevant Nibble as zero 
+   ' Now Put the data 
+   __param3 = __param3 AND __param2 ' First Clear the relevant Nibble
+   __param3 = __param3 OR __param1 ' Add the relevant Nibble
+   
+   RETURN __param3
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable FROM which to Get the Nibble
+' __param2 is the number of the Nibble from which to Get the data
+' The value is returned in Nibble 0
+'{$IFUSED Get_Nib}
+FUNC Get_Nib
+   __param2 = __param2 * 4
+   __param1 = __param1 >> __param2
+   __param1 = __param1 AND $0F ' Isolate the Low Nibble
+   RETURN __param1      
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable OF which to set the Specifie Byte to all "1"s
+' __param2 is the number of the Byte which to set to all "1"s
+' The First Byte is Byte 0
+'{$IFUSED Set_Byte}
+FUNC Set_Byte    
+   __param4 = $FF    ' Set Byte 0 to all 1s
+   __param3 = __param2 * 8
+   __param4 = __param4 << __param3  ' Put the Byte in the right place
+   __param1 = __param1 OR __param4 ' Add the relevant Byte
+   RETURN __param1  
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable OF which to set the Specifie Byte to all "0"s
+' __param2 is the number of the Byte which to set to all "0"s
+' The First Byte is Byte 0
+'{$IFUSED Clear_Byte}
+FUNC Clear_Byte    
+   __param4 = $FF    ' Set Byte 0 to all 1s
+   __param3 = __param2 * 8
+   __param4 = __param4 << __param3  ' Put the Byte in the right place
+   __param4 = ~__param4 ' Change the Bits to "0"
+   __param1 = __param1 AND __param4 ' Add the relevant Byte
+   RETURN __param1  
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable OF which to Put the Byte Value (The Low Byte of a Variable is used). __param1 can be a Literal, e.g. 7 or %0000_0111
+' __param2 is the Variable INTO which to Put the Byte
+' __param3 is the number of the Byte in which to Put the data
+' The First Byte is Byte 0
+'{$IFUSED Put_Byte}
+FUNC Put_Byte   
+   __param1 = __param1 AND $FF ' Isolate the Low Byte  
+   __param3 = __param3 * 8
+   __param1 = __param1 << __param3      ' Put the byte in the right place 
+   ' Set the Bit Mask to clear the relevant Byte  
+   __param4 = $FF    ' Set Byte 0 to all 1s 
+   __param4 = __param4 << __param3  ' Put the Byte in the right place
+   __param4 = ~__param4    ' Invert the bits to get the relevant Byte as all zeroes   
+   ' Now Put the data 
+   __param2 = __param2 AND __param4 ' First Clear the relevant Byte
+   __param2 = __param2 OR __param1 ' Add the relevant Byte
+   RETURN __param2   
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable to Copy From
+' __param2 is the Number of the Byte which to Copy
+' __param3 is the Variable INTO which to Copy the Byte
+' __param4 is the number of the Byte into which to Copy
+' The First Byte is Bit 0
+'{$IFUSED Copy_Byte}
+FUNC Copy_Byte
+   __param2 = __param2 * 8
+   __param1 = __param1 >> __param2
+   __param1 = __param1 AND $FF ' Isolate the Low Byte 
+   __param4 = __param4 * 8
+   __param1 = __param1 << __param4  ' Shift the Byte into the right place      
+
+   ' Set the Bit Mask to clear the relevant Byte  
+   __param2 = $FF    ' Set Byte 0 to all 1s 
+   __param2 = __param2 << __param4  ' Put the Byte in the right place
+   __param2 = ~__param2    ' Invert the bits to get the relevant Byte as zero 
+   ' Now Put the data 
+   __param3 = __param3 AND __param2 ' First Clear the relevant Byte
+   __param3 = __param3 OR __param1 ' Add the relevant Byte
+   
+   RETURN __param3
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable FROM which to Get the Byte
+' __param2 is the number of the Byte from which to Get the data
+' The value is returned in Byte 0
+'{$IFUSED Get_Byte}
+FUNC Get_Byte
+   __param2 = __param2 * 8
+   __param1 = __param1 >> __param2
+   __param1 = __param1 AND $FF ' Isolate the Low Byte
+   RETURN __param1       
+ENDFUNC
+'{$ENDIF}
+
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable OF which to set the Specifie Word to all "1"s
+' __param2 is the number of the Word which to set to all "1"s
+' The First Word is Word 0
+'{$IFUSED Set_Word}
+FUNC Set_Word    
+   __param4 = $FF_FF    ' Set Word 0 to all 1s
+   __param3 = __param2 * 16
+   __param4 = __param4 << __param3  ' Put the Word in the right place
+   __param1 = __param1 OR __param4 ' Add the relevant Word
+   RETURN __param1  
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable OF which to set the Specifie Word to all "0"s
+' __param2 is the number of the Word which to set to all "0"s
+' The First Word is Word 0
+'{$IFUSED Clear_Word}
+FUNC Clear_Word    
+   __param4 = $FF_FF    ' Set Word 0 to all 1s
+   __param3 = __param2 * 16
+   __param4 = __param4 << __param3  ' Put the Word in the right place
+   __param4 = ~__param4 ' Change the Bits to "0"
+   __param1 = __param1 AND __param4 ' Add the relevant Word
+   RETURN __param1  
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable OF which to Put the Word Value (The Low Word of a Variable is used). __param1 can be a Literal, e.g. 7 or %0000_0000_0000_0111
+' __param2 is the Variable INTO which to Put the Word
+' __param3 is the number of the Word in which to Put the data
+' The First Word is Word 0
+'{$IFUSED Put_Word}
+FUNC Put_Word  
+   __param1 = __param1 AND $FF_FF ' Isolate the Low Word  
+   __param3 = __param3 * 16
+   __param1 = __param1 << __param3      ' Put the Word in the right place 
+   ' Set the Bit Mask to clear the relevant Word  
+   __param4 = $FF_FF    ' Set Word 0 to all 1s 
+   __param4 = __param4 << __param3  ' Put the Word in the right place
+   __param4 = ~__param4    ' Invert the bits to get the relevant Word as all zeroes   
+   ' Now Put the data 
+   __param2 = __param2 AND __param4 ' First Clear the relevant Word
+   __param2 = __param2 OR __param1 ' Add the relevant Word
+   RETURN __param2   
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable to Copy From
+' __param2 is the Number of the Word which to Copy
+' __param3 is the Variable INTO which to Copy the Word
+' __param4 is the number of the Word into which to Copy
+' The First Word is Bit 0
+'{$IFUSED Copy_Word}
+FUNC Copy_Word
+   __param2 = __param2 * 16
+   __param1 = __param1 >> __param2
+   __param1 = __param1 AND $FF_FF ' Isolate the Low Word 
+   __param4 = __param4 * 16
+   __param1 = __param1 << __param4  ' Shift the Word into the right place      
+
+   ' Set the Bit Mask to clear the relevant Word  
+   __param2 = $FF_FF   ' Set Word 0 to all 1s 
+   __param2 = __param2 << __param4  ' Put the Word in the right place
+   __param2 = ~__param2    ' Invert the bits to get the relevant Word as zero 
+   ' Now Put the data 
+   __param3 = __param3 AND __param2 ' First Clear the relevant Word
+   __param3 = __param3 OR __param1 ' Add the relevant Word
+   
+   RETURN __param3
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Variable FROM which to Get the Word
+' __param2 is the number of the Word from which to Get the data
+' The value is returned in Word 0
+'{$IFUSED Get_Word}
+FUNC Get_Word
+   __param2 = __param2 * 16
+   __param1 = __param1 >> __param2
+   __param1 = __param1 AND $FF_FF ' Isolate the Low Word
+   RETURN __param1       
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' -- Find the Number of the HIGHEST BIT which is set. The same as PBASIC "NCD".
+' -- The LSB is Bit 0
+'{$IFUSED NCD_High}
+FUNC NCD_High
+   __param2 = %1000_0000_0000_0000_0000_0000_0000_0000   ' Start with the MSB
+   IF __param1 = 0 THEN    ' No Bit has been Set
+      __param1 = $FF
+   ELSE
+      FOR __param4 = 32 to 1 STEP -1  
+         __param3 = __param2 AND __param1 
+         IF __param3 = __param2 THEN
+            __param1 = __param4 - 1
+            EXIT
+         ELSE
+            __param2 = __param2 >> 1 ' / 2      
+         ENDIF
+      NEXT
+   ENDIF
+   RETURN __param1
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' -- Find the Number of the LOWEST BIT which is set. The same principle as PBASIC "NCD", except it finds the lowest Bit which is set
+' -- The LSB is Bit 0
+'{$IFUSED NCD_Low}
+FUNC NCD_Low
+   __param2 = 1
+   IF __param1 = 0 THEN    ' No Bit has been Set
+      __param1 = $FF
+   ELSE
+      FOR __param4 = 1 to 32
+         __param3 = __param2 AND __param1 
+         IF __param3 = __param2 THEN
+            __param1 = __param4 - 1
+            EXIT
+         ELSE
+            __param2 = __param2 << 1 ' * 2      
+         ENDIF
+      NEXT
+   ENDIF
+   RETURN __param1
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' -- Look in a DATA String (__param1) and find a Value or Character for a given Index (__param2)
+'{$IFUSED Look_Up}
+FUNC Look_Up
+   INC __param2   ' Allow for "["
+   __param1 = __param1 + __param2
+   RDBYTE __param1, __param2 
+   RETURN __param2
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' -- Look in a DATA String (__param1) and find the Index of a given Value or Character (__param2)
+'{$IFUSED Look_Down}
+FUNC Look_Down
+   __param4 = __param1
+   DO
+      RDBYTE __param1, __param3
+      IF __param3 = __param2 THEN
+         __param1 = __param1 - __param4
+         DEC __param1   ' Allow for "["
+         EXIT
+      ENDIF
+      INC __param1
+   LOOP UNTIL __param3 = "]"
+   IF __param3 = "]" THEN  
+      __param1 = $FF
+   ENDIF
+   RETURN __param1
+ENDFUNC
+'{$ENDIF}
+
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+'{$IFUSED DEC2BCD}
+FUNC DEC2BCD 
+   __param2 = __param1 / 10
+   __param3 = __Remainder        ' __param3 = __param1 // 10 does the same thing
+   __param2 = __param2 << 4
+   __param2 = __param2 + __param3
+   
+   RETURN __param2
+ENDFUNC
+'{$ENDIF}
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+'{$IFUSED BCD2DEC}
+' Use: value = BCD2DEC bcd
+' -- converts BCD byte to decimal
+
+FUNC BCD2DEC   ' This code uses 17 Longs LESS space than BCDtoDEC !!!!!
+
+  ASM
+                mov     __temp1, __param1       ' copy
+                and     __temp1, #$F0           ' isolate 10s digit
+                shr     __temp1, #(4 - 1)       ' dec 1s x2
+                mov     __temp2, __temp1        ' copy
+                shl     __temp2, #2             ' x2 x 4 = x8
+                add     __temp1, __temp2        ' x2 + x8 = x10
+                and     __param1, #$0F          ' isolate 1s digit
+                add     __param1, __temp1       ' add 10s
+  ENDASM
+  RETURN __param1
+
+ENDFUNC
+'{$ENDIF}
+  
+' Decimal to BCD is easy with the BASIC Stamp:
+' bcdVal = (decVal / 10 << 4) + (decVal // 10)
+' To get from BCD to decimal:
+' decVal = (bcdVal.NIB1 * 10) + bcdVal.NIB0
+'
+'
+' SPIN Example:
+' PRI bin2bcd(dataIn) | tmp
+' 'Convert a byte of binary data to binary coded decimal
+'
+'   tmp:= dataIn/10
+'   result := dataIn - ( tmp * 10 ) + ( tmp << 4 )
+'
+'
+' PRI bcd2bin(dataIn)
+' 'Convert a byte of binary coded decimal data to binary
+'
+'  result := (dataIn & %00001111) +  ((dataIn >> 4) & %00001111)*10
+  
+
+' ' ----------------------------------------------------------------------
+' '{$IFUSED BCDtoDEC}
+' FUNC BCDtoDEC  ' This code uses 17 Longs MORE space than BCD2DEC !!!!!
+'
+'    __param2 = __param1
+'    __param2 = __param2 AND %00001111   
+'  
+'    __param3 = __param1
+'    __param3 = __param3 >> 4
+'    __param3 = __param3 AND %00001111
+'    __param3 = __param3 * 10
+'   
+'     __param1 = __param2 + __param3
+'
+'    RETURN __param1
+'   
+' ENDFUNC
+' '{$ENDIF}
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+'{$IFUSED DEC2HEX}
+FUNC DEC2HEX  
+   __param2 = __param1 / 10
+   __param3 = __Remainder        ' __param3 = __param1 // 10 does the same thing
+   __param2 = __param2 * 16
+   __param2 = __param2 + __param3 
+   
+   RETURN __param2
+ENDFUNC
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Number of the Pin to which the speaker is connected
+' __param2 is the Duration of the TOGGLE Loop
+' __param3 determines the "Frequency" of the TOGGLE Loop. 
+'{$IFUSED Piezo}
+SUB Piezo
+   LOW __param1
+   FOR __param4 = 1 to __param2 
+      TOGGLE __param1 
+      PAUSEUS __param3 
+   NEXT
+   LOW __param1
+ENDSUB
+'{$ENDIF}
+
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' This Subroutine uses Differential Drive for the Speaker, which means that the output volume is higher.
+' __param1 and __param2 are the Numbers of the Pins to which the speaker is connected
+' __param3 is the Duration of the TOGGLE Loop
+' __param4 determines the "Frequency" of the TOGGLE Loop. 
+'{$IFUSED PiezoX}
+SUB PiezoX
+   PiezoX_Duration   VAR   LONG   
+   __param3 = __param3 / 2    ' Because we PAUSEUS Twice   
+   FOR PiezoX_Duration = 1 to __param3      
+      HIGH __param1
+      LOW __param2    
+      PAUSEUS __param4      
+      LOW __param1
+      HIGH __param2      
+      PAUSEUS __param4      
+   NEXT
+   LOW __param1
+   LOW __param2
+ENDSUB
+'{$ENDIF}
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Number of the Pin to which the speaker is connected
+' __param2 is the Duration of the Freq_Out Loop in Milliseconds
+' __param3 is the Required Output Frequency in Hertz
+'{$IFUSED Freq_Out}
+SUB Freq_Out
+   Freq_Out_Duration VAR   LONG
+
+   LOW __param1   ' Make the Speaker Output LOW to start with
+   
+' Calculate the Milliseconds Duration in Clock Cycles
+   __param4 = _FREQ / 1000       ' Divide System Clock Frequency by 1000 to get Milliseconds, e.g. 80_000_000 Clock Cycles = 1 Second 
+   __param2 = __param2 * __param4
+   
+' Calculate the PAUSEUS Value in Micro Seconds from the Given Frequency in Hz
+' 283692 Hz = PAUSEUS 1 
+   __param4 =  283692 * 100         ' Scale Up by * 100 so as not to lose fractions
+   __param3 = __param4 / __param3   ' Divide by the Required Frequency to get a Multiple of PAUSEUS 1
+   __param3 = __param3 * 1753       ' Multiply by 1.753 Scaled Up by * 1000 (1.753 is a Factor determined from Actual Readings)
+   __param3 = __param3 / 100_000     ' Divide by 100_000 because we Scaled up by 100 * 1000
+   
+' Start the LOOP 
+ __param4 = cnt    ' Get the current CNT Value   
+   DO   
+      TOGGLE __param1 
+      PAUSEUS __param3        
+      Freq_Out_Duration = cnt - __param4           ' Get the difference between the Current CNT value and the Loop Start CNT Value 
+      Freq_Out_Duration = ABS Freq_Out_Duration    ' Make the Number Positive        
+   LOOP WHILE Freq_Out_Duration < __param2  
+   LOW __param1   ' Make the Speaker Output LOW to finish with   
+ENDSUB
+'{$ENDIF}
+
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' This Subroutine uses Differential Drive for the Speaker, which means that the output volume is higher.
+' __param1 and __param2 are the Numbers of the Pins to which the speaker is connected
+' __param3 is the Duration of the Freq_OutX Loop in Milliseconds
+' __param4 is the Required Output Frequency in Hertz
+'{$IFUSED Freq_OutX}
+SUB Freq_OutX
+   Freq_Out_Duration VAR   LONG
+   Freq_OutX_Delay    VAR   LONG
+   
+' Calculate the Milliseconds Duration in Clock Cycles
+   Freq_OutX_Delay = _FREQ / 1000       ' Divide System Clock Frequency by 1000 to get Milliseconds 
+   __param3 = __param3 * Freq_OutX_Delay
+   
+' Calculate the PAUSEUS Value in Micro Seconds from the Given Frequency in Hz
+' 283692 Hz = PAUSEUS 1 
+   Freq_OutX_Delay =  283692 * 100         ' Scale Up by * 100 so as not to lose fractions
+   __param4 = Freq_OutX_Delay / __param4   ' Divide by the Required Frequency to get a Multiple of PAUSEUS 1
+   __param4 = __param4 * 1753        ' Multiply by 1.753 Scaled Up by * 1000 (1.753 is a Factor determined from Actual Readings)
+   __param4 = __param4 / 100_000     ' Divide by 100_000 because we Scaled up by 100 * 1000
+   
+' Start the LOOP 
+   Freq_OutX_Delay = cnt    ' Get the current CNT Value   
+   DO  
+      HIGH __param1
+      LOW __param2    
+      PAUSEUS __param4      
+      LOW __param1
+      HIGH __param2      
+      PAUSEUS __param4            
+      Freq_Out_Duration = cnt - Freq_OutX_Delay    ' Get the difference between the Current CNT value and the Loop Start CNT Value 
+      Freq_Out_Duration = ABS Freq_Out_Duration    ' Make the Number Positive        
+   LOOP WHILE Freq_Out_Duration < __param3  
+   LOW __param1   ' Make the Speaker Output LOW to finish with  
+   LOW __param2   ' Make the Speaker Output LOW to finish with     
+ENDSUB
+'{$ENDIF}
+
+
+
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' __param1 is the Number of the Pin which to Pulse
+' __param2 is the Duration of the HIGH PIN pause in micro seconds
+' __param3 is the Duration of the LOW PIN pause in micro seconds
+'{$IFUSED Pulse_Out}
+SUB Pulse_Out
+   HIGH __param1
+   PAUSEUS __param2
+   LOW __param1
+   PAUSEUS __param3
+ENDSUB
+'{$ENDIF}
+
+
+' ----------------------------------------------------------------------
+' Syntax: 
+' !!!! This FUNC Uses COUNTERB with the following Initialisation:
+' COUNTERB 64, Adjust_Switch, 0, 1, 0   ' 64 = POS detector, FRQB = 1, PHSB = 0 
+' __param1 is the PIN of the Switch/Button which to check for %0
+' __param2 is the SLOW Loop Delay in milliseconds. This is the Default Delay.
+' __param3 is the FAST Loop Delay in milliseconds 
+'{$IFUSED Button}
+FUNC Button
+
+   __param4 = 1
+   __param4 = __param4 << __param1   ' Convert __param1 Pin to DCD Bit
+   __param4 = INA AND __param4
+   
+   IF __param4 = %0 THEN
+      PHSB = 0
+   ELSE
+      __param4 = __param2 * 500_000	' This determines how many Slow Delay Button Counts there will be. 500_000 gives ~5 SLOW Delay Button Counts. 
+      IF PHSB > __param4 THEN 
+         __param2 = __param3 
+      ENDIF
+   ENDIF
+ 
+   RETURN __param2 
+   
+ENDFUNC
+'{$ENDIF}
+

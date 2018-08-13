@@ -1,0 +1,129 @@
+
+DEVICE P8X32A, XTAL1, PLL16X
+XIN 5_000_000
+
+' ----------------------------------------------------------------------
+' I/O Pins
+' ----------------------------------------------------------------------
+RX_PIN         PIN     31 INPUT
+TX_PIN         PIN     30 INPUT 
+
+Button_1       PIN   22 INPUT     
+Button_2       PIN   23 INPUT     
+
+Speaker        PIN   24 OUTPUT   ' Piezo Buzzer
+
+
+' ----------------------------------------------------------------------
+' Constants
+' ----------------------------------------------------------------------
+Terminal_Baud   CON   115200
+
+' -- TX_Format Constants & Variables ---------------
+HOME     CON   1           
+GOTOXY   CON   2
+BKSP     CON   8
+TAB      CON   9
+LF       CON   10
+CLREOL   CON   11
+CLRDN    CON   12
+CR       CON   13
+GOTOX    CON   14
+GOTOY    CON   15
+CLS      CON   16
+
+
+
+' ----------------------------------------------------------------------
+' Data
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' Variables
+' ----------------------------------------------------------------------
+TX_BAUD        VAR   LONG
+
+Button_Delay   VAR   LONG
+
+Counter        VAR   LONG
+
+' ----------------------------------------------------------------------
+' SUB & FUNC Definitions
+' ----------------------------------------------------------------------
+LOAD "D:\Propeller\Propeller Programs\Libraries\DELAYS_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\TX_RX_LIB.pbas"                      
+LOAD "D:\Propeller\Propeller Programs\LIBRARIES\UTILS_LIB.pbas"
+
+Buttonx   FUNC 3
+
+
+' ----------------------------------------------------------------------
+' TASK Definitions
+' ----------------------------------------------------------------------
+
+' ======================================================================
+  PROGRAM START
+' ======================================================================
+
+START:
+
+   COUNTERB 64, Button_1, 0, 1, 0   ' 64 = POS detector, FRQB = 1, PHSB = 0
+
+   TX_BAUD = Terminal_Baud
+
+   DELAY_MS 5000
+   TX_BYTE CLS
+   
+   Counter = 0
+
+Main:
+
+   TX_STR "Waiting for Button..."
+   TX_BYTE CR
+   TX_BYTE CR
+      
+DO
+   
+   Button_Delay = Button Button_1, 300, 50
+      
+   IF Button_1 = 1 THEN    ' Button 1 is Pressed
+   
+      INC Counter
+      TX_DEC Counter
+      TX_STR "  Pressed"
+      TX_BYTE CR
+      Piezo Speaker, 300, 135
+      
+      DELAY_MS Button_Delay
+        
+   ENDIF
+
+
+LOOP UNTIL Button_2 = 1    ' Wait for Button 2 to be Pressed
+
+Piezo Speaker, 300, 135
+TX_BYTE CR
+TX_BYTE CR
+TX_STR " Finished ... "
+
+DO
+LOOP UNTIL Button_2 = 0   'Wait for the button to be released
+
+
+
+END
+   
+' ----------------------------------------------------------------------
+' SUB & FUNC Code
+' ----------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,88 @@
+
+DEVICE P8X32A, XTAL1, PLL16X
+XIN 5_000_000
+
+' ----------------------------------------------------------------------
+' I/O Pins
+' ----------------------------------------------------------------------
+' X_PIN      PIN     31 INPUT
+TX_PIN      PIN     30 INPUT              
+
+
+
+' ----------------------------------------------------------------------
+' Constants
+' ----------------------------------------------------------------------
+Terminal_Baud   CON   115200
+
+
+
+' -- TX_Format Constants & Variables ---------------
+HOME     CON   1           
+GOTOXY   CON   2
+BKSP     CON   8
+TAB      CON   9
+LF       CON   10
+CLREOL   CON   11
+CLRDN    CON   12
+CR       CON   13
+GOTOX    CON   14
+GOTOY    CON   15
+CLS      CON   16            
+
+
+
+' ----------------------------------------------------------------------
+' Data
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' Variables
+' ----------------------------------------------------------------------
+TX_BAUD   VAR   LONG
+
+Temp  	VAR   LONG
+Temp2  	VAR   LONG
+
+
+' ----------------------------------------------------------------------
+' SUB & FUNC Definitions
+' ----------------------------------------------------------------------
+LOAD "D:\Propeller\Propeller Programs\Libraries\DELAYS_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\TX_RX_LIB.pbas"   
+
+
+' ----------------------------------------------------------------------
+' TASK Definitions
+' ----------------------------------------------------------------------
+
+' ======================================================================
+  PROGRAM START
+' ======================================================================
+
+START:
+
+   TX_BAUD = Terminal_Baud 
+
+   PAUSE 5000
+   TX_BYTE CLS
+
+   Temp = 123_456_789
+
+   TX_STR "DEC  "
+   TX_DEC Temp
+   TX_BYTE CR
+   TX_STR "DECX "
+   TX_DECX Temp, 12  ' Display 12 Digits padded with leading zeroes
+   TX_BYTE CR
+   TX_STR "DECX "
+   TX_DECX Temp, 3  ' Display 3 Digits. Leading digits are truncated
+
+
+
+END
+   
+
+
+

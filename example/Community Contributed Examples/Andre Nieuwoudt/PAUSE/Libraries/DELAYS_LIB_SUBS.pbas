@@ -1,0 +1,11 @@
+' ======================================================================
+' Delays Library for PropBASIC
+' -- by Jon McPhalen
+' -- 21 MAY 2010
+' -- requires PropBASIC 0.98a or later
+' ======================================================================
+
+' LOADing seperate SUBS and CODE files works in the Main Program as well as in Tasks
+
+DELAY_MS        SUB     1                       ' shell for PAUSE
+DELAY_US        SUB     1                       ' shell for PAUSEUS

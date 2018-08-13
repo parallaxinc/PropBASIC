@@ -1,0 +1,282 @@
+' ----------------------------------------------------------------------
+' GLOBAL: Device Settings
+' ----------------------------------------------------------------------
+DEVICE          P8X32A, XTAL1, PLL16X
+XIN             5_000_000
+
+' ----------------------------------------------------------------------
+' GLOBAL: I/O Pins
+' ----------------------------------------------------------------------
+TX_PIN     PIN   30 INPUT
+RX_PIN     PIN   31 INPUT
+
+' ***********************************************************
+' -- I2C_SDA & I2C_SCL are HARDCODED in I2C_LIB.pbas 
+ I2C_SDA     PIN   29 INPUT
+ I2C_SCL     PIN   28 INPUT              
+' ***********************************************************
+
+' ----------------------------------------------------------------------
+' GLOBAL: Constants
+' ----------------------------------------------------------------------
+' -- !!! You HAVE TO use Variables for the BAUD Rate/s
+Terminal_Baud   CON   115200
+
+' -- "TX_RX_Format_Lib_.pbas" Constants ---------------
+HOME        CON   1
+CR          CON   13
+CLS         CON   16   
+
+' ----------------------------------------------------------------------
+' GLOBAL: HUB Variables (Byte, Word, Long) - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' GLOBAL: DATA, WDATA, LDATA, FILE - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' COG 0: Variables (Long only)
+' ----------------------------------------------------------------------
+' ***********************************************************
+' These Variables are HARDCODED in I2C_LIB.pbas
+Register_Address  VAR   LONG
+Address_Len       VAR   LONG
+Control_Byte      VAR   LONG
+' ***********************************************************
+
+Write_EEPROM      CON   %10100000     ' Device Address = 0
+
+TX_BAUD   VAR   LONG
+RX_BAUD   VAR   LONG
+
+
+Eeprom_Offset  CON   40_000
+
+Xe          CON   2     ' Number of Elements in X Dimension
+Ye          CON   3     ' Number of Elements in Y Dimension
+Ze          CON   4     ' Number of Elements in Z Dimension
+Te          CON   5     ' Number of Elements in T Dimension
+
+X_Loop      CON   (Xe - 1)     ' Number of Elements Loop limit for X Dimension
+Y_Loop      CON   (Ye - 1)     ' Number of Elements Loop limit for Y Dimension
+Z_Loop      CON   (Ze - 1)     ' Number of Elements Loop limit for Z Dimension
+T_Loop      CON   (Te - 1)     ' Number of Elements Loop limit for T Dimension
+
+' Array       VAR   LONG(120)  ' (2 x 3 x 4 x 5) Single Dimension Array to hold Multi-Dimensional Array Values 
+
+Xi          VAR   LONG     ' Calculated X Index for the Array
+Yi          VAR   LONG     ' Calculated Y Index for the Array
+Zi          VAR   LONG     ' Calculated Z Index for the Array
+
+Xc          VAR   LONG     ' X Co-ordinate
+Yc          VAR   LONG     ' Y Co-ordinate
+Zc          VAR   LONG     ' Z Co-ordinate
+Tc          VAR   LONG     ' T Co-ordinate
+
+Temp        VAR   LONG
+
+
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Definitions
+' ----------------------------------------------------------------------
+LOAD "D:\Propeller\Propeller Programs\Libraries\DELAYS_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\TX_RX_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\I2C_LIB.pbas" 
+
+Calc_4_Dim_Index     SUB   0
+Write_Array    SUB   1
+Read_Array     FUNC  0
+
+
+
+
+' ----------------------------------------------------------------------
+' TASK Definitions
+' ----------------------------------------------------------------------
+
+
+' ======================================================================
+  PROGRAM START
+' ======================================================================
+
+START:
+
+   TX_BAUD = Terminal_Baud
+   RX_BAUD = Terminal_Baud
+   
+   Control_Byte = Write_EEPROM 
+   Address_Len = 2
+   
+   DELAY_MS 3000
+   TX_BYTE CLS
+   DELAY_MS 2000
+
+   
+' -- Clear the Array 
+   FOR Xc = 0 TO X_Loop
+   
+      FOR Yc = 0 TO Y_Loop  
+
+          FOR Zc = 0 TO Z_Loop
+          
+            FOR Tc = 0 TO T_Loop
+         
+               GOSUB Write_Array, 0    ' Value
+            
+            NEXT
+               
+          NEXT
+    
+      NEXT
+ 
+   NEXT
+   
+   
+   
+   
+' -- Write to the Array   
+   FOR Xc = 0 TO X_Loop
+   
+      FOR Yc = 0 TO Y_Loop  
+
+         FOR Zc = 0 TO Z_Loop
+         
+            FOR Tc = 0 TO T_Loop
+         
+               GOSUB Calc_4_Dim_Index
+               
+               TX_DEC Xc
+               TX_BYTE " "
+               TX_DEC Yc
+               TX_BYTE " "
+               TX_DEC Zc
+               TX_BYTE " "
+               TX_DEC Tc
+               TX_BYTE " "
+               TX_DEC Register_Address
+               TX_BYTE CR
+            
+               GOSUB Write_Array, Register_Address    ' Value 
+
+            NEXT
+         
+         NEXT
+    
+      NEXT
+ 
+   NEXT
+               
+               
+   TX_BYTE CR
+   TX_STR "Writing Complete..."
+   TX_BYTE CR
+   TX_STR "Reading..."
+   TX_BYTE CR
+   
+   DELAY_MS 2000
+   
+   
+   
+' -- Read from the Array    
+   FOR Xc = 0 TO X_Loop
+   
+      FOR Yc = 0 TO Y_Loop  
+
+         FOR Zc = 0 TO Z_Loop
+         
+            FOR Tc = 0 TO T_Loop
+         
+               TX_DEC Xc
+               TX_BYTE " "
+               TX_DEC Yc
+               TX_BYTE " "
+               TX_DEC Zc
+               TX_BYTE " "
+               TX_DEC Tc
+               TX_BYTE " "
+            
+               Temp = Read_Array
+               
+               TX_DEC Temp
+               TX_BYTE CR
+               
+            NEXT
+                
+         NEXT
+    
+      NEXT
+ 
+   NEXT
+
+
+END
+
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Code
+' ----------------------------------------------------------------------
+
+' ----------------------------------------------------------------------
+SUB  Calc_4_Dim_Index
+   
+   ' Xi = Xc * Ye * Ze * Te
+   Xi = Xc * Ye
+   Xi = Xi * Ze
+   Xi = Xi * Te
+   
+   ' Yi = Yc * Ze * Te
+   Yi = Yc * Ze
+   Yi = Yi * Te
+   
+   ' Zi = Zc * Te
+   Zi = Zc * Te
+   
+   ' Register_Address = Xi + Yi + Zi + Tc + Eeprom_Offset
+   Register_Address = Xi + Yi
+   Register_Address = Register_Address + Zi
+   Register_Address = Register_Address + Tc
+   
+   IF Register_Address <> 0 THEN ' Not the first Address
+
+      Register_Address = Register_Address * 2   ' Allow for WORD-sized Variables
+      
+   ENDIF   
+   
+   Register_Address = Register_Address + Eeprom_Offset
+
+ENDSUB
+
+
+
+
+
+' ----------------------------------------------------------------------
+SUB  Write_Array
+
+   GOSUB Calc_4_Dim_Index
+
+   I2C_Out __param1, 2  ' Write WORD Variable
+
+   DELAY_MS 5
+
+ENDSUB
+
+
+
+' ----------------------------------------------------------------------
+FUNC  Read_Array
+
+   GOSUB Calc_4_Dim_Index
+  
+   __param1 = I2C_In 2  ' Read WORD Variable
+
+   RETURN __param1
+
+ENDFUNC
+
+
+

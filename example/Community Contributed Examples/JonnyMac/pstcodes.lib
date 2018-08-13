@@ -1,0 +1,19 @@
+' Parallax Serial Terminal
+' -- control codes
+
+HOME            CON     1
+GOTOXY          CON     2
+CRSRLF          CON     3
+CRSRRT          CON     4
+CRSRUP          CON     5
+CRSRN           CON     6
+BEEP            CON     7
+BKSP            CON     8
+TAB             CON     9
+LF              CON     10
+CLREOL          CON     11
+CLRDN           CON     12
+CR              CON     13
+GOTOX           CON     14
+GOTOY           CON     15
+CLS             CON     16                      ' allow use in strings

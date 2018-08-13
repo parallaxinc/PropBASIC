@@ -1,0 +1,107 @@
+' ----------------------------------------------------------------------
+' Device Settings
+' ----------------------------------------------------------------------
+DEVICE          P8X32A, XTAL1, PLL16X
+XIN             5_000_000
+
+' ----------------------------------------------------------------------
+' GLOBAL: I/O Pins
+' ----------------------------------------------------------------------
+TX_PIN     PIN   30 INPUT
+
+' ----------------------------------------------------------------------
+' GLOBAL: Constants
+' ----------------------------------------------------------------------
+Terminal_Baud   CON   115200
+
+' ----------------------------------------------------------------------
+' GLOBAL: HUB Variables (Byte, Word, Long) - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' GLOBAL: DATA, WDATA, LDATA, FILE - use RDxxxx and WRxxxx
+' ----------------------------------------------------------------------
+
+
+' ----------------------------------------------------------------------
+' COG 0: Variables (Long only)
+' ----------------------------------------------------------------------
+TX_BAUD   VAR   LONG
+
+Row_Code  VAR   Long
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Definitions
+' ----------------------------------------------------------------------
+LOAD "D:\Propeller\Propeller Programs\Libraries\TX_RX_LIB.pbas"
+LOAD "D:\Propeller\Propeller Programs\Libraries\UTILS_LIB.pbas"
+
+
+' ----------------------------------------------------------------------
+' TASK Definitions
+' ----------------------------------------------------------------------
+
+
+' ======================================================================
+  PROGRAM START
+' ======================================================================
+
+START:
+
+TX_BAUD = Terminal_Baud
+PAUSE 5000
+SEROUT TX_PIN, T115200, 16
+
+
+Main:
+   
+' 1). Convert the Value of a Variable to the corresponding Bit Number. The LSB is Bit number 0!. Clear all the other Bits
+
+   Row_Code = 0
+   
+   TX_STR "1). Convert the Value of a Variable to the corresponding Bit Number."
+   TX_BYTE 13
+   TX_STR "The LSB is Bit number 0!. Clear all the other Bits"
+   TX_BYTE 13
+   TX_STR "Binary String Before : "
+   TX_BIN Row_Code, 16
+   TX_BYTE 13
+   
+   Row_Code = DCD_Bit Row_Code
+   
+   TX_STR "Binary String After  : "
+   TX_BIN Row_Code, 16
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   
+' 2). Convert the Value of a Variable to the corresponding Bit Number BUT with the LSB as Bit number 1!. Clear all the other Bits
+
+   Row_Code = 3
+   
+   TX_STR "2). Convert the Value of a Variable to the corresponding Bit Number"
+   TX_BYTE 13
+   TX_STR "BUT with the LSB as Bit number 1!. Clear all the other Bits"
+   TX_BYTE 13
+   TX_STR "Binary String Before : "
+   TX_BIN Row_Code, 16
+   TX_BYTE 13
+   
+   Row_Code = Row_Code - 1  ' Subtract 1 to set the LSB as Bit Number 1
+   Row_Code = DCD_Bit Row_Code
+   
+   TX_STR "Binary String After  : "
+   TX_BIN Row_Code, 16
+   TX_BYTE 13
+   TX_BYTE 13
+   
+   
+
+
+END  
+
+' ----------------------------------------------------------------------
+' COG 0: SUB & FUNC Code
+' ----------------------------------------------------------------------
+

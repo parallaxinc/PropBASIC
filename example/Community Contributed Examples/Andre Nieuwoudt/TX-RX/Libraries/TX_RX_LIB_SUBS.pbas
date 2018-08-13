@@ -1,0 +1,72 @@
+' ======================================================================
+' Serial IO Library for PropBASIC
+' -- by Jon McPhalen
+' -- 22 MAY 2010
+' -- requires PropBASIC 0.98a or later
+' ======================================================================
+
+' LOADing seperate SUBS and CODE files works in the Main Program as well as in Tasks
+
+' This is based on Jonny Mac's "pst_serial_lib.pbas"
+' CHANGES:
+' * The PST Control Codes are commented out so that you can put them in the Main Program
+' * I have also Added TX_DECX which allows you to Specifiy how many Digits to send
+
+' * MAJOR CHANGE:
+'   The Library has been Generalized to allow changing of Baud Rates and/or TX/RX Pins in Program code, e.g. writing to different Serial LCDs
+'   The following are HARDCODED in this Library and MUST be used in the Program Code:
+' ----------------------------------------------------------------------
+' I/O Pins
+' ----------------------------------------------------------------------
+' TX_PIN
+' RX_PIN
+
+' ----------------------------------------------------------------------
+' Variables
+' ----------------------------------------------------------------------
+' TX_BAUD
+' RX_BAUD
+
+
+
+
+' PST control codes
+' HOME            CON     1
+' GOTOXY          CON     2
+' CRSRLF          CON     3
+' CRSRRT          CON     4
+' CRSRUP          CON     5
+' CRSRDN           CON     6
+' BEEP            CON     7
+' BKSP            CON     8
+' TAB             CON     9
+' LF              CON     10
+' CLREOL          CON     11
+' CLRDN           CON     12
+' CR              CON     13
+' GOTOX           CON     14
+' GOTOY           CON     15
+' CLS             CON     16                      ' allow use in strings
+
+
+' ----------------------------------------------------------------------
+
+RX_STR          SUB     1, 2			            ' rx a string
+RX_BIN          FUNC    0, 1                    ' rx binary value
+RX_HEX          FUNC    0, 1                    ' rx hex value
+RX_DEC          FUNC    0, 1                    ' rx decimal value
+RX_BYTE         FUNC    0                       ' shell for SERIN
+
+TX_STR          SUB     1, 2                    ' tx a string. You can optionally specify a termination character in __param2, e.g. "@".
+                                                ' This is useful for when the DATA that you want to TX contains zeros.
+                                                ' If you do not use __param2, then "0" must be used as the termination character.
+                                                
+TX_BIN          SUB     1, 2                    ' tx value as binary
+TX_HEX          SUB     1, 2                    ' tx value as hex
+TX_DEC          SUB     1                       ' tx value as decimal. This is the Original - You CANNOT specify the number of digits to display
+TX_DECX         SUB     1, 2                    ' NEW: tx value as decimal. This is my own version - You CAN specify the number of digits to display
+TX_RPT          SUB     2                       ' tx byte x times
+TX_BYTE         SUB     1                       ' shell for SEROUT
+
+UCASE           FUNC    1                       ' alpha to uppercase
+MULT_10         FUNC    1                       ' x10

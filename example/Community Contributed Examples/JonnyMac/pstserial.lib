@@ -1,0 +1,465 @@
+' ======================================================================
+' Serial IO Library for PropBASIC
+' -- by Jon McPhalen
+' -- 22 MAY 2010
+' -- requires PropBASIC 0.98a or later
+' ======================================================================
+
+' PST control codes
+
+HOME            CON     1
+GOTOXY          CON     2
+CRSRLF          CON     3
+CRSRRT          CON     4
+CRSRUP          CON     5
+CRSRN           CON     6
+BEEP            CON     7
+BKSP            CON     8
+TAB             CON     9
+LF              CON     10
+CLREOL          CON     11
+CLRDN           CON     12
+CR              CON     13
+GOTOX           CON     14
+GOTOY           CON     15
+CLS             CON     16                      ' allow use in strings
+
+
+' ----------------------------------------------------------------------
+
+RX_STR          SUB     1, 2			               ' rx a string
+RX_BIN          FUNC    0, 1                    ' rx binary value
+RX_HEX          FUNC    0, 1                    ' rx hex value
+RX_DEC          FUNC    0, 1                    ' rx decimal value
+RX_BYTE         FUNC    0                       ' shell for SERIN
+
+TX_STR          SUB     1                       ' tx a string
+TX_BIN          SUB     1, 2                    ' tx value as binary
+TX_HEX          SUB     1, 2                    ' tx value as hex
+TX_DEC          SUB     1                       ' tx value as decimal
+TX_RPT          SUB     2                       ' tx byte x times
+TX_BYTE         SUB     1                       ' shell for SEROUT
+
+UCASE           FUNC    1                       ' alpha to uppercase
+MULT_10         FUNC    1                       ' x10
+
+
+' ----------------------------------------------------------------------
+'{$CODE}
+' ----------------------------------------------------------------------
+
+' Use: RX_STR pntr, max
+' -- reads string from serial stream
+' -- terminated by CR
+
+'{$IFUSED RX_STR}
+SUB RX_STR
+
+  rsChar        VAR     __param1                ' character in
+  rsAddr        VAR     __param3                ' start of string
+  rsCount       VAR     __param4                ' input length
+
+  rsAddr = __param1                             ' save address
+  IF __paramcnt = 1 THEN
+    rsCount = 32                                ' default to 32
+  ELSE
+    rsCount = __param2 MIN 0                    ' get count
+    rsCount = rsCount MAX 32
+  ENDIF
+
+  DO WHILE rsCount > 0                          ' while spaces left
+    rsChar = RX_BYTE                            ' get a character
+    IF rsChar <> 8 THEN                         ' if not backspace
+      IF rsChar <> 13 THEN                      ' if not CR
+        WRBYTE rsAddr, rsChar                   ' add char to string
+        INC rsAddr                              ' update pointer
+        DEC rsCount                             ' update count
+      ELSE
+        rsChar = 0                              ' make terminator
+        rsCount = 0                             ' and exit
+      ENDIF
+    ELSE
+      IF rsCount < 32 THEN                      ' if chars entered
+        DEC rsAddr                              ' back up
+        WRBYTE rsAddr, 0                        ' erase
+        INC rsCount                             ' fix count
+      ENDIF
+    ENDIF
+  LOOP
+  WRBYTE rsAddr, 0                              ' terminator
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: result = RX_BIN {digits}
+' -- input binary number from serial stream
+
+'{$IFUSED RX_BIN}
+FUNC RX_BIN
+
+  rbChar        VAR     __param1
+  rbVal         VAR     __param2
+  rbCount       VAR     __param3
+
+  IF __paramcnt = 1 THEN                        ' digits specified?
+    rbCount = __param1 MIN 0
+    rbCount = rbCount MAX 32
+  ELSE
+    rbCount = 32
+  ENDIF
+
+  rbVal = 0                                     ' clear value
+
+  DO WHILE rbCount > 0
+    rbChar = RX_BYTE                            ' get digit
+
+    IF rbChar >= "0" AND                        ' if legal
+      rbChar <= "1" THEN
+        rbChar = rbChar - "0"                   ' convert from ASCII
+        rbVal = rbVal << 1                      ' make room for bi
+        rbVal = rbVal + rbChar                  ' update result
+        DEC rbCount
+    ELSEIF rbChar <> "_" THEN                   ' if not separator
+      rbCount = 0                               '   we're done
+    ENDIF
+  LOOP
+  RETURN rbVal
+
+  ENDFUNC
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: result = RX_HEX {digits}
+' -- input hexadecimal number from serial stream
+
+'{$IFUSED RX_HEX}
+FUNC RX_HEX
+
+  rhChar        VAR     __param1
+  rhVal         VAR     __param2
+  rhCount       VAR     __param3
+
+  IF __paramcnt = 1 THEN                        ' digits specified?
+    rhCount = __param1 MIN 0
+    rhCount = rbCount MAX 8
+  ELSE
+    rhCount = 8
+  ENDIF
+
+  rhVal = 0                                     ' clear value
+
+  DO WHILE rhCount > 0
+    rhChar = RX_BYTE                            ' get digit
+    rhChar = UCASE rhChar                       ' make uppercase
+
+    IF rhChar >= "0" AND                        ' if legal
+      rhChar <= "9" THEN
+        rhChar = rhChar - "0"                   ' convert from ASCII
+    ELSEIF rhChar >= "A" AND
+       rhChar <= "F" THEN
+         rhChar = rhChar - 55                   ' "A" - 10
+    ELSEIF rhChar <> "_" THEN
+       rhCount = 0                              ' if not valid, exit
+    ENDIF
+
+    IF rhCount THEN
+      IF rhChar <> "_" THEN                     ' if digit
+        rhVal = rhVal << 4                      ' make room for nib
+        rhVal = rhVal + rhChar                  ' update result
+        DEC rhCount                             ' update count
+      ENDIF
+    ENDIF
+  LOOP
+  RETURN rhVal
+
+  ENDFUNC
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: result = RX_DEC {digits}
+' -- input decimal number from serial stream
+' -- first character can be "-" for negative values
+
+'{$IFUSED RX_DEC}
+FUNC RX_DEC
+
+  rdChar        VAR     __param2
+  rdVal         VAR     __param3
+  rdCount       VAR     __param4
+  rdSign        VAR     __temp5
+
+  IF __paramcnt = 1 THEN                        ' digits specified?
+    rdCount = __param1 MIN 0
+    rdCount = rdCount MAX 10
+  ELSE
+    rdCount = 10
+  ENDIF
+
+  rdVal = 0                                     ' clear value
+  rdSign = 0                                    ' assume positive
+
+  DO WHILE rdCount > 0
+    rdChar = RX_BYTE                            ' get digit
+
+    IF rdChar = "-" THEN                        ' neg sign
+      IF rdCount = 10 THEN                      ' if 1st
+        rdSign = 1                              ' set sign
+      ELSE
+        rdCount = 0                             ' else abort
+      ENDIF
+    ELSEIF rdChar >= "0" AND                    ' if legal
+      rdChar <= "9" THEN
+        rdChar = rdChar - "0"                   ' convert from ASCII
+        rdVal = MULT_10 rdVal                   ' make room for digit
+        rdVal = rdVal + rdChar                  ' update result
+        DEC rdCount
+    ELSEIF rdChar <> "_" THEN                   ' if not separator
+      rdCount = 0                               '   we're done
+    ENDIF
+  LOOP
+
+  IF rdSign THEN
+    rdVal = -rdVal
+  ENDIF
+  RETURN rdVal
+
+  ENDFUNC
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: result = RX_BYTE
+' -- shell for SERIN
+
+'{$IFUSED RX_BYTE}
+FUNC RX_BYTE
+
+  SERIN RX, Baud, __param1
+  RETURN __param1
+
+  ENDFUNC
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: TX_STR strpntr
+' -- transmits a z-string at strpntr
+' -- uses TX_BYTE
+
+'{$IFUSED TX_STR}
+SUB TX_STR
+
+  tsPntr      VAR     __param3
+  tsChar      VAR     __param4
+
+  tsPntr = __param1
+  DO
+    RDBYTE tsPntr, tsChar
+    IF tsChar = 0 THEN EXIT
+    TX_BYTE tsChar
+    INC tsPntr
+  LOOP
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: TX_BIN value, digits
+' -- transmit binary string of value
+
+'{$IFUSED TX_BIN}
+SUB TX_BIN
+
+  biDigit       VAR     __param1                ' used by TX_BYTE
+  biVal         VAR     __param2
+  biCount       VAR     __param3
+
+  IF __paramcnt = 1 THEN                        ' no digits spec'd?
+    __param2 = 1                                '   use default
+  ELSE
+    __param2 = __param2 MIN 1                   ' keep in legal limits
+    __param2 = __param2 MAX 32
+  ENDIF
+
+  biCount = __param2                            ' save count
+  __param2 = 32 - __param2                      ' adjust for <<
+  \ mov __temp1, __param1                       ' biVal = __param1 << __param2
+  \ shl __temp1, __param2
+  \ mov biVal, __temp1
+
+  DO WHILE biCount > 0
+    \ ROL biVal, #1                             ' rotate bit to lsb
+    biDigit = biVal & %1                        ' extract binary digit
+    biDigit = biDigit + "0"                     ' convert to ASCII
+    TX_BYTE biDigit
+    DEC biCount
+  LOOP
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: TX_HEX value, digits
+' -- transmit hexadecimal string of value
+
+'{$IFUSED TX_HEX}
+SUB TX_HEX
+
+  hxDigit       VAR     __param1                ' used by TX_BYTE
+  hxVal         VAR     __param2
+  hxCount       VAR     __param3
+
+  IF __paramcnt = 1 THEN                        ' no digits spec'd?
+    __param2 = 1                                '   use default
+  ELSE
+    __param2 = __param2 MIN 1                   ' keep in legal limits
+    __param2 = __param2 MAX 8
+  ENDIF
+
+  hxCount = __param2                            ' save count
+  __param2 = 8 - __param2                       ' adjust for <<
+  __param2 = __param2 << 2                      ' convert to nib (x4)
+  \ mov __temp1, __param1                       ' hxVal = __param1 << __param2
+  \ shl __temp1, __param2
+  \ mov hxVal, __temp1
+
+  DO WHILE hxCount > 0
+    \ ROL hxVal, #4                             ' rotate nib to lsb
+    hxDigit = hxVal & $F                        ' extract hex digit
+    IF hxDigit < 10 THEN                        ' convert to ASCII
+      hxDigit = hxDigit + "0"                   ' "0" - "9"
+    ELSE
+      hxDigit = hxDigit + 55                    ' "A" - "F"
+    ENDIF
+    TX_BYTE hxDigit
+    DEC hxCount
+  LOOP
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+'{$IFUSED TX_DEC}
+SUB TX_DEC
+
+  dcDigit       VAR     __param1
+  dcVal         VAR     __param2
+  dcDiv         VAR     __param3
+  dcNegX        VAR     __param4
+  dcPrint       VAR     Long
+
+  dcVal = __param1                              ' capture value
+  dcNegX = 0                                    ' assume not NEGX
+
+  IF dcVal = 0 THEN                             ' if zero
+    TX_BYTE "0"                                 '   we're done
+  ELSE
+    IF dcVal < 0 THEN                           ' negative?
+      TX_BYTE "-"                               '   print sign
+      IF dcVal = $8000_0000 THEN                '   negx?
+        INC dcVal                               '   yes, fix
+        dcNegX = 1                              '   and set flag
+      ENDIF
+      dcVal = ABS dcVal                         '   make positive
+    ENDIF
+    dcDiv = 1_000_000_000                       ' set divisor
+    dcPrint = 0                                 ' print flag off
+    DO WHILE dcDiv > 0                          ' while digits left
+      dcDigit = 0                               ' assume digit value
+      DO WHILE dcVal >= dcDiv                   ' extract digit
+        dcVal = dcVal - dcDiv
+        INC dcDigit
+      LOOP
+      dcPrint = dcPrint + dcDigit               ' update lead-0 flag
+      IF dcPrint > 0 THEN                       ' past leading zeroes?
+        IF dcDiv = 1 THEN                       ' on 1s digit?
+          dcDigit = dcDigit + dcNegX            '   yes, adjust for NEGX
+        ENDIF
+        dcDigit = dcDigit + "0"                 '   convert to ASCII
+        TX_BYTE dcDigit                         '   and print
+      ENDIF
+      dcDiv = dcDiv / 10                        ' update divisor
+    LOOP
+  ENDIF
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: TX_RPT char, count
+' -- used to print char count times
+
+'{$IFUSED TX_RPT}
+SUB TX_RPT
+
+  __param2 = __param2 MIN 0                     ' disallow negatives
+  __param2 = __param2 MAX 80                    ' arbitrary
+
+  DO WHILE __param2 > 0
+    TX_BYTE __param1
+    DEC __param2
+  LOOP
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use: TX_BYTE char, count
+' -- shell for SEROUT
+
+'{$IFUSED TX_BYTE}
+SUB TX_BYTE
+
+  SEROUT TX, Baud, __param1
+
+  ENDSUB
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use result = UCASE char
+' -- converts lowercase ASCII to uppercase
+
+'{$IFUSED UCASE}
+FUNC UCASE
+
+  IF __param1 >= "a" AND
+     __param1 <= "z" THEN
+       __param1 = __param1 &~ $20
+  ENDIF
+  RETURN __param1
+
+  ENDFUNC
+'{$ENDIF}
+
+' ----------------------------------------------------------------------
+
+' Use result = MULT_10 value
+' -- returns value * 10
+
+'{$IFUSED MULT_10}
+FUNC MULT_10
+  ASM
+                abs     __param1, __param1      wc      ' get sign
+                muxc    __temp2, #1                     ' save it
+                mov     __temp1, __param1               ' copy
+                shl     __temp1, #3                     ' x8
+                shl     __param1, #1                    ' x2
+                add     __param1, __temp1               ' add 'em, Danno
+                test    __temp2, #1             wc
+                negc    __param1, __param1              ' restore sign
+  ENDASM
+  RETURN __param1
+
+  ENDFUNC
+'{$ENDIF}
+
